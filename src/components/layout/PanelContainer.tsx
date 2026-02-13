@@ -9,6 +9,7 @@ import { ChatPanel } from '@/components/tools/ChatPanel';
 import { EmailClient } from '@/components/tools/EmailClient';
 import { WebSearch } from '@/components/tools/WebSearch';
 import { Calendar } from '@/components/tools/Calendar';
+import { Settings } from '@/components/tools/Settings';
 import type { ToolId } from '@/types';
 
 const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
@@ -18,6 +19,7 @@ const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
   email: EmailClient,
   search: WebSearch,
   calendar: Calendar,
+  settings: Settings,
 };
 
 const TOOL_LABELS: Record<ToolId, string> = {
@@ -27,6 +29,7 @@ const TOOL_LABELS: Record<ToolId, string> = {
   email: 'Email',
   search: 'Web Search',
   calendar: 'Calendar',
+  settings: 'Display Properties',
 };
 
 export function PanelContainer() {

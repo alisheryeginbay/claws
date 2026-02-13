@@ -64,7 +64,7 @@ export interface Conversation {
 
 // --- Tools ---
 
-export type ToolId = 'terminal' | 'files' | 'chat' | 'email' | 'search' | 'calendar';
+export type ToolId = 'terminal' | 'files' | 'chat' | 'email' | 'search' | 'calendar' | 'settings';
 
 export interface ToolState {
   activeTool: ToolId;
