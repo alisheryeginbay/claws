@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { cn } from '@/lib/utils';
-import { Mail, Star, Send, ArrowLeft, Reply, Forward, Inbox } from 'lucide-react';
+import { Star, Send, ArrowLeft, Reply, Forward } from 'lucide-react';
+import { XPIcon } from '@/components/ui/XPIcon';
 
 export function EmailClient() {
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
@@ -116,7 +117,7 @@ export function EmailClient() {
     <div className="h-full flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-1.5 border-b border-claw-border bg-claw-surface">
-        <Inbox size={14} className="text-claw-muted" />
+        <XPIcon name="oe-inbox" size={16} />
         <span className="text-xs text-claw-text">Inbox</span>
         {unreadCount > 0 && (
           <span className="text-[10px] text-claw-blue">({unreadCount} unread)</span>
@@ -126,7 +127,7 @@ export function EmailClient() {
           onClick={() => setView('compose')}
           className="flex items-center gap-1 px-2 py-1 text-[10px] bg-claw-green/10 border border-claw-green/30 text-claw-green hover:bg-claw-green/20 transition-colors"
         >
-          <Mail size={10} /> Compose
+          <XPIcon name="oe-create-mail" size={16} /> Compose
         </button>
       </div>
 

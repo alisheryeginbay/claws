@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { searchDatabase } from '@/data/search-results';
 import { cn } from '@/lib/utils';
-import { Search, Globe, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
+import { XPIcon } from '@/components/ui/XPIcon';
 
 export function WebSearch() {
   const [query, setQuery] = useState('');
@@ -35,7 +36,7 @@ export function WebSearch() {
       {/* Search bar */}
       <div className="p-4 border-b border-claw-border">
         <div className="flex items-center gap-2 bg-claw-surface border border-claw-border rounded-sm px-3 py-2 focus-within:border-claw-green/50">
-          <Search size={14} className="text-claw-muted flex-shrink-0" />
+          <XPIcon name="search" size={16} className="flex-shrink-0" />
           <input
             type="text"
             value={query}
@@ -64,7 +65,7 @@ export function WebSearch() {
             {searchResults.map((result) => (
               <div key={result.id} className="space-y-1">
                 <div className="flex items-center gap-1.5">
-                  <Globe size={10} className="text-claw-muted" />
+                  <XPIcon name="internet-explorer-6" size={16} />
                   <span className="text-[10px] text-claw-dim truncate">{result.url}</span>
                 </div>
                 <div className="text-sm text-claw-blue hover:underline cursor-pointer flex items-center gap-1">
@@ -80,7 +81,7 @@ export function WebSearch() {
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-claw-muted text-xs gap-2">
-            <Globe size={32} className="text-claw-dim" />
+            <XPIcon name="internet-explorer-6" size={48} />
             <div>Search the web for information</div>
             <div className="text-[10px] text-claw-dim">
               Try: "React best practices", "Python CSV", "cron jobs"

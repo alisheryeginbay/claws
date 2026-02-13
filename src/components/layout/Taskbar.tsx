@@ -5,12 +5,6 @@ import { cn } from '@/lib/utils';
 import { useGameStore } from '@/store/gameStore';
 import { formatTime, formatDay, formatNumber } from '@/lib/utils';
 import {
-  Terminal,
-  FolderOpen,
-  MessageSquare,
-  Mail,
-  Search,
-  Calendar,
   Shield,
   Flame,
   Cpu,
@@ -22,6 +16,8 @@ import {
   FastForward,
   MemoryStick,
 } from 'lucide-react';
+import { XPIcon } from '@/components/ui/XPIcon';
+import { WINDOW_ICON_MAP } from '@/lib/xp-icons';
 import { StartMenu } from './StartMenu';
 
 const RESOURCE_THRESHOLDS = {
@@ -30,15 +26,6 @@ const RESOURCE_THRESHOLDS = {
   HIGH: 80,
   MEDIUM: 50,
 } as const;
-
-const ICON_MAP: Record<string, typeof Terminal> = {
-  terminal: Terminal,
-  'folder-open': FolderOpen,
-  'message-square': MessageSquare,
-  mail: Mail,
-  search: Search,
-  calendar: Calendar,
-};
 
 export function Taskbar() {
   const windows = useGameStore((s) => s.windows);
@@ -143,7 +130,7 @@ export function Taskbar() {
             const win = windows[windowId];
             if (!win) return null;
             const isFocused = windowOrder[windowOrder.length - 1] === windowId && !win.isMinimized;
-            const Icon = ICON_MAP[win.icon] || Terminal;
+            const iconSlug = WINDOW_ICON_MAP[win.icon] || win.icon;
             const badge = getBadge(win.toolId);
 
             return (
@@ -158,7 +145,7 @@ export function Taskbar() {
                     : 'xp-taskbar-button'
                 )}
               >
-                <Icon size={14} className="flex-shrink-0" />
+                <XPIcon name={iconSlug} size={16} className="flex-shrink-0" />
                 <span className="text-[11px] truncate">{win.title}</span>
                 {badge != null && (
                   <span

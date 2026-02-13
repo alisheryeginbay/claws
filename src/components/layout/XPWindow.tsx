@@ -3,24 +3,9 @@
 import { useRef, useCallback, useEffect, type ReactNode } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { WindowControls } from './WindowControls';
-import {
-  Terminal,
-  FolderOpen,
-  MessageSquare,
-  Mail,
-  Search,
-  Calendar,
-} from 'lucide-react';
+import { XPIcon } from '@/components/ui/XPIcon';
+import { WINDOW_ICON_MAP } from '@/lib/xp-icons';
 import type { WindowState } from '@/types';
-
-const ICON_MAP: Record<string, typeof Terminal> = {
-  terminal: Terminal,
-  'folder-open': FolderOpen,
-  'message-square': MessageSquare,
-  mail: Mail,
-  search: Search,
-  calendar: Calendar,
-};
 
 interface XPWindowProps {
   windowState: WindowState;
@@ -40,7 +25,7 @@ export function XPWindow({ windowState, isFocused, children }: XPWindowProps) {
   const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null);
   const resizeRef = useRef<{ startX: number; startY: number; startW: number; startH: number; startPosX: number; startPosY: number; direction: string } | null>(null);
 
-  const Icon = ICON_MAP[windowState.icon] || Terminal;
+  const iconSlug = WINDOW_ICON_MAP[windowState.icon] || windowState.icon;
 
   const handleMouseDown = useCallback(() => {
     if (!isFocused) {
@@ -197,7 +182,7 @@ export function XPWindow({ windowState, isFocused, children }: XPWindowProps) {
         onDoubleClick={() => maximizeWindow(windowState.id)}
       >
         <div className="flex items-center gap-2 pointer-events-none">
-          <Icon size={14} />
+          <XPIcon name={iconSlug} size={16} />
           <span className="text-[12px] truncate">{windowState.title}</span>
         </div>
         <div className="flex-1" />
