@@ -215,9 +215,9 @@ const commands: Record<string, CommandHandler> = {
 
   uname: (args) => {
     if (args.includes('-a')) {
-      return { output: 'ClawOS 6.1.0 claw-workstation x86_64 GNU/Linux' };
+      return { output: 'Claws 6.1.0 claw-workstation x86_64 GNU/Linux' };
     }
-    return { output: 'ClawOS' };
+    return { output: 'Claws' };
   },
 
   wc: (args, cwd) => {

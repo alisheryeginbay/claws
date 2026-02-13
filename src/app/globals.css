@@ -579,7 +579,7 @@ body {
   animation: slide-in-bounce 0.4s ease-out forwards;
 }
 
-/* XP brand font — used for "Claw OS" branding across boot and welcome screens */
+/* XP brand font — used for "Claws" branding across boot and welcome screens */
 .font-xp-brand {
   font-family: 'Franklin Gothic Medium', 'Tahoma', sans-serif;
 }

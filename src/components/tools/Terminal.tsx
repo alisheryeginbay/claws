@@ -92,7 +92,7 @@ export function Terminal() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-1">
         {history.length === 0 && (
           <div className="text-[#808080]">
-            <div className="text-[#00FF00]">Microsoft(R) ClawOS Command Prompt</div>
+            <div className="text-[#00FF00]">Clawsoft(R) Claws Command Prompt</div>
             <div className="text-[#C0C0C0]">(C) Clawback Corp. Type <span className="text-[#00CCFF]">help</span> for commands.</div>
             <div className="mt-1" />
           </div>
