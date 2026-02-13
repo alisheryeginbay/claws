@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useGameStore } from '@/store/gameStore';
 import { formatTime, formatDay, formatNumber } from '@/lib/utils';
+import Image from 'next/image';
 import {
   Shield,
   Flame,
@@ -115,10 +116,7 @@ export function Taskbar() {
           className={cn('xp-start-button', startMenuOpen && 'shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]')}
           onClick={toggleStartMenu}
         >
-          <svg width="14" height="14" viewBox="0 0 16 16" className="text-white">
-            <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" />
-            <path fill="currentColor" d="M5 4.5L12 8L5 11.5Z" />
-          </svg>
+          <Image src="/claws.svg" alt="" width={18} height={18} className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]" />
           <span>start</span>
         </button>
 
