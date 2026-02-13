@@ -2,13 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { WindowControls, useDragWindow } from '@/components/layout/WindowControls';
+import { WindowControls } from '@/components/layout/WindowControls';
 
 export default function HomePage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const handleDrag = useDragWindow();
-
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -18,7 +16,7 @@ export default function HomePage() {
       <div className="text-center space-y-6 max-w-xl mx-4">
         <div className="xp-dialog overflow-hidden xp-window-in">
           {/* XP Title Bar */}
-          <div className="xp-titlebar" onMouseDown={handleDrag}>
+          <div className="xp-titlebar">
             <span className="flex-1">Clawback</span>
             <WindowControls />
           </div>

@@ -300,4 +300,10 @@ export interface GameState {
   // Search
   searchQuery: string;
   searchResults: SearchResult[];
+
+  // Window Manager
+  windows: Record<WindowId, WindowState>;
+  windowOrder: WindowId[];
+  nextZIndex: number;
+  startMenuOpen: boolean;
 }

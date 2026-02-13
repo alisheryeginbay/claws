@@ -10,20 +10,12 @@ const WINDOW_DEFAULTS: Record<ToolId, { width: number; height: number; minWidth:
   calendar: { width: 600, height: 500, minWidth: 400, minHeight: 350, title: 'Calendar', icon: 'calendar' },
 };
 
-let cascadeOffset = 0;
-
-function getNextCascadePosition() {
-  const base = { x: 80, y: 40 };
-  const offset = cascadeOffset * 30;
-  cascadeOffset = (cascadeOffset + 1) % 8;
-  return { x: base.x + offset, y: base.y + offset };
-}
-
 export interface WindowSlice {
   windows: Record<WindowId, WindowState>;
   windowOrder: WindowId[];
   nextZIndex: number;
   startMenuOpen: boolean;
+  cascadeOffset: number;
 
   openWindow: (toolId: ToolId) => void;
   closeWindow: (windowId: WindowId) => void;
@@ -38,11 +30,22 @@ export interface WindowSlice {
   resetWindows: () => void;
 }
 
+function normalizeZIndexes(state: WindowSlice): Partial<WindowSlice> {
+  const updatedWindows = { ...state.windows };
+  state.windowOrder.forEach((id, i) => {
+    if (updatedWindows[id]) {
+      updatedWindows[id] = { ...updatedWindows[id], zIndex: 100 + i };
+    }
+  });
+  return { windows: updatedWindows, nextZIndex: 100 + state.windowOrder.length };
+}
+
 export const createWindowSlice: StateCreator<WindowSlice> = (set, get) => ({
   windows: {},
   windowOrder: [],
   nextZIndex: 100,
   startMenuOpen: false,
+  cascadeOffset: 0,
 
   openWindow: (toolId) => {
     const state = get();
@@ -58,7 +61,9 @@ export const createWindowSlice: StateCreator<WindowSlice> = (set, get) => ({
     }
 
     const defaults = WINDOW_DEFAULTS[toolId];
-    const position = getNextCascadePosition();
+    const base = { x: 80, y: 40 };
+    const offset = state.cascadeOffset * 30;
+    const position = { x: base.x + offset, y: base.y + offset };
     const windowId = `window-${toolId}`;
     const zIndex = state.nextZIndex;
 
@@ -80,6 +85,7 @@ export const createWindowSlice: StateCreator<WindowSlice> = (set, get) => ({
       windowOrder: [...state.windowOrder, windowId],
       nextZIndex: zIndex + 1,
       startMenuOpen: false,
+      cascadeOffset: (state.cascadeOffset + 1) % 8,
     });
   },
 
@@ -164,7 +170,7 @@ export const createWindowSlice: StateCreator<WindowSlice> = (set, get) => ({
     const win = state.windows[windowId];
     if (!win) return;
     const zIndex = state.nextZIndex;
-    set({
+    const newState = {
       windows: {
         ...state.windows,
         [windowId]: { ...win, zIndex },
@@ -172,7 +178,11 @@ export const createWindowSlice: StateCreator<WindowSlice> = (set, get) => ({
       windowOrder: [...state.windowOrder.filter((id) => id !== windowId), windowId],
       nextZIndex: zIndex + 1,
       startMenuOpen: false,
-    });
+    };
+    set(newState);
+    if (newState.nextZIndex > 1000) {
+      set(normalizeZIndexes(get()));
+    }
   },
 
   moveWindow: (windowId, position) => {
@@ -207,12 +217,12 @@ export const createWindowSlice: StateCreator<WindowSlice> = (set, get) => ({
   closeStartMenu: () => set({ startMenuOpen: false }),
 
   resetWindows: () => {
-    cascadeOffset = 0;
     set({
       windows: {},
       windowOrder: [],
       nextZIndex: 100,
       startMenuOpen: false,
+      cascadeOffset: 0,
     });
   },
 });

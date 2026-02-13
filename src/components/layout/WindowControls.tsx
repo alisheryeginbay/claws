@@ -9,10 +9,6 @@ interface WindowControlsProps {
   onClose?: () => void;
 }
 
-export function useDragWindow() {
-  return (_e: React.MouseEvent) => {};
-}
-
 export function WindowControls({ className = '', onMinimize, onMaximize, onClose }: WindowControlsProps) {
   return (
     <div className={`flex items-center gap-[2px] ${className}`}>

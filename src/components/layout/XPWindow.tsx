@@ -84,8 +84,14 @@ export function XPWindow({ windowState, isFocused, children }: XPWindowProps) {
         const dy = e.clientY - dragRef.current.startY;
         const el = windowRef.current;
         if (el) {
-          el.style.left = `${dragRef.current.startPosX + dx}px`;
-          el.style.top = `${dragRef.current.startPosY + dy}px`;
+          const rawX = dragRef.current.startPosX + dx;
+          const rawY = dragRef.current.startPosY + dy;
+          const elW = el.offsetWidth;
+          // Keep at least 100px visible horizontally, clamp top to 0 and bottom to above taskbar
+          const x = Math.max(-elW + 100, Math.min(rawX, window.innerWidth - 100));
+          const y = Math.max(0, Math.min(rawY, window.innerHeight - 72));
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
         }
       }
       if (resizeRef.current) {
@@ -133,8 +139,11 @@ export function XPWindow({ windowState, isFocused, children }: XPWindowProps) {
       if (dragRef.current) {
         const el = windowRef.current;
         if (el) {
-          const x = parseInt(el.style.left) || 0;
-          const y = Math.max(0, parseInt(el.style.top) || 0);
+          const rawX = parseInt(el.style.left) || 0;
+          const rawY = parseInt(el.style.top) || 0;
+          const elW = el.offsetWidth;
+          const x = Math.max(-elW + 100, Math.min(rawX, window.innerWidth - 100));
+          const y = Math.max(0, Math.min(rawY, window.innerHeight - 72));
           moveWindow(windowState.id, { x, y });
         }
         dragRef.current = null;
@@ -161,6 +170,10 @@ export function XPWindow({ windowState, isFocused, children }: XPWindowProps) {
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      dragRef.current = null;
+      resizeRef.current = null;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
     };
   }, [windowState.id, windowState.minSize, windowState.size, windowState.position, moveWindow, resizeWindow]);
 

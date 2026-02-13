@@ -32,9 +32,8 @@ export function Desktop() {
 
   // Auto-open Terminal and Chat on mount
   useEffect(() => {
-    openWindow('terminal');
-    openWindow('chat');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useGameStore.getState().openWindow('terminal');
+    useGameStore.getState().openWindow('chat');
   }, []);
 
   // Sync activeTool with focused window

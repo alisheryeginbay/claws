@@ -150,6 +150,7 @@ export function Taskbar() {
               <button
                 key={windowId}
                 onClick={() => handleTaskbarClick(windowId)}
+                title={win.title}
                 className={cn(
                   'relative h-[26px] px-2 flex items-center gap-1.5 rounded-sm transition-all text-white/90 min-w-[120px] max-w-[180px] truncate',
                   isFocused
