@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Clawback",
   description: "You are the AI now. Handle requests, use tools, survive security traps.",
+  icons: {
+    icon: "/claws.svg",
+  },
 };
 
 export default function RootLayout({

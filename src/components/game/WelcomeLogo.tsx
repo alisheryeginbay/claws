@@ -1,9 +1,11 @@
 'use client';
 
+import Image from 'next/image';
+
 export function WelcomeLogo({ subtitle }: { subtitle: string }) {
   return (
     <div className="flex flex-col items-center gap-4">
-      <span className="text-[56px] leading-none">🦞</span>
+      <Image src="/claws.svg" alt="Claws" width={56} height={56} />
 
       <div className="text-center">
         <div className="flex items-baseline justify-center gap-1.5">

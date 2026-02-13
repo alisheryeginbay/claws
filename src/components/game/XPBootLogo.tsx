@@ -1,9 +1,13 @@
 'use client';
 
+import Image from 'next/image';
+
 export function XPBootLogo() {
   return (
     <div className="flex flex-col items-center gap-5">
-      <span className="text-[80px] leading-none xp-flag-glow">🦞</span>
+      <div className="xp-flag-glow">
+        <Image src="/claws.svg" alt="Claws" width={80} height={80} />
+      </div>
 
       {/* Product name */}
       <div className="text-center space-y-1">
