@@ -1,1 +1,1 @@
-# Claws
+# Claws by Clawsoft Corp.
