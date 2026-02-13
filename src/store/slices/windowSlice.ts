@@ -8,6 +8,7 @@ const WINDOW_DEFAULTS: Record<ToolId, { width: number; height: number; minWidth:
   email: { width: 700, height: 500, minWidth: 500, minHeight: 350, title: 'Outlook Express', icon: 'mail' },
   search: { width: 700, height: 500, minWidth: 400, minHeight: 300, title: 'Internet Explorer', icon: 'search' },
   calendar: { width: 600, height: 500, minWidth: 400, minHeight: 350, title: 'Calendar', icon: 'calendar' },
+  settings: { width: 480, height: 420, minWidth: 400, minHeight: 350, title: 'Display Properties', icon: 'monitor' },
 };
 
 export interface WindowSlice {

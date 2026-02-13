@@ -12,6 +12,8 @@ import { ChatPanel } from '@/components/tools/ChatPanel';
 import { EmailClient } from '@/components/tools/EmailClient';
 import { WebSearch } from '@/components/tools/WebSearch';
 import { Calendar } from '@/components/tools/Calendar';
+import { Settings } from '@/components/tools/Settings';
+import { WALLPAPERS } from '@/store/slices/settingsSlice';
 import type { ToolId } from '@/types';
 
 const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
@@ -21,6 +23,7 @@ const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
   email: EmailClient,
   search: WebSearch,
   calendar: Calendar,
+  settings: Settings,
 };
 
 export function Desktop() {
@@ -29,6 +32,8 @@ export function Desktop() {
   const openWindow = useGameStore((s) => s.openWindow);
   const setActiveTool = useGameStore((s) => s.setActiveTool);
   const closeStartMenu = useGameStore((s) => s.closeStartMenu);
+  const wallpaper = useGameStore((s) => s.wallpaper);
+  const wallpaperSrc = WALLPAPERS.find((w) => w.key === wallpaper)!.src;
 
   // Auto-open Terminal and Chat on mount
   useEffect(() => {
@@ -82,6 +87,11 @@ export function Desktop() {
     <div
       id="game-root"
       className="h-screen w-screen relative overflow-hidden bg-[var(--color-xp-desktop)]"
+      style={{
+        backgroundImage: `url(${wallpaperSrc})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
       onClick={handleDesktopClick}
     >
       {/* Desktop Icons */}

@@ -11,6 +11,7 @@ import {
   Calendar,
   HelpCircle,
   Power,
+  Monitor,
 } from 'lucide-react';
 import type { ToolId } from '@/types';
 
@@ -92,6 +93,13 @@ export function StartMenu() {
           >
             <FolderOpen size={16} className="text-[#0054E3]" />
             <span className="font-bold">My Computer</span>
+          </button>
+          <button
+            onClick={() => handleOpenProgram('settings')}
+            className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#316AC5] hover:text-white text-[11px] text-left transition-colors"
+          >
+            <Monitor size={16} className="text-[#0054E3]" />
+            <span>Display Properties</span>
           </button>
           <button
             className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#316AC5] hover:text-white text-[11px] text-left transition-colors cursor-default"
