@@ -35,6 +35,12 @@ export function NpcSelectionScreen({ candidates, isGenerated, onSelect }: NpcSel
               <button
                 key={npc.id}
                 onClick={() => onSelect(npc)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelect(npc);
+                  }
+                }}
                 className="xp-welcome-row w-full flex items-center gap-4 rounded-sm"
               >
                 {/* Avatar */}

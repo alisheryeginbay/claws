@@ -107,6 +107,12 @@ export function StartScreen() {
               <button
                 key={diff.id}
                 onClick={() => handleSelectDifficulty(diff.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelectDifficulty(diff.id);
+                  }
+                }}
                 className="xp-welcome-row w-full flex items-center gap-4 rounded-sm"
               >
                 <div className="w-12 h-12 rounded-md bg-white/10 flex items-center justify-center text-2xl shrink-0 border border-white/20">
