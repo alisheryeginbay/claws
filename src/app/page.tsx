@@ -2,58 +2,57 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { WindowControls } from '@/components/layout/WindowControls';
+import { XPBootLogo } from '@/components/game/XPBootLogo';
+import { XPBootProgress } from '@/components/game/XPBootProgress';
+import { cn } from '@/lib/utils';
+
+const BOOT_DURATION = 3500;
+const FADE_DURATION = 800;
 
 export default function HomePage() {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const [bootFading, setBootFading] = useState(false);
+
   useEffect(() => {
-    setMounted(true);
+    const bootTimer = setTimeout(() => {
+      setBootFading(true);
+    }, BOOT_DURATION);
+
+    return () => clearTimeout(bootTimer);
   }, []);
 
+  useEffect(() => {
+    if (!bootFading) return;
+    const navTimer = setTimeout(() => {
+      router.push('/game');
+    }, FADE_DURATION);
+
+    return () => clearTimeout(navTimer);
+  }, [bootFading, router]);
+
   return (
-    <div className="h-screen w-screen bg-[var(--color-xp-desktop)] flex items-center justify-center">
-      <div className="text-center space-y-6 max-w-xl mx-4">
-        <div className="xp-dialog overflow-hidden xp-window-in">
-          {/* XP Title Bar */}
-          <div className="xp-titlebar">
-            <span className="flex-1">Clawback</span>
-            <WindowControls />
-          </div>
+    <div className={cn(
+      'h-screen w-screen bg-black flex flex-col items-center justify-center select-none',
+      bootFading && 'xp-boot-fade-out'
+    )}>
+      {/* Logo and text — positioned slightly above center */}
+      <div className="-mt-16">
+        <XPBootLogo />
+      </div>
 
-          {/* Dialog Content */}
-          <div className="p-8 space-y-6 bg-[var(--color-xp-face)]">
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-[#003C74] tracking-wide">
-                CLAWBACK
-              </div>
-              <div className="text-xs text-[#808080]">
-                Version 0.1
-              </div>
-            </div>
+      {/* Progress bar — below center */}
+      <div className="mt-16">
+        <XPBootProgress />
+      </div>
 
-            <div className="space-y-2 border-t border-b border-[#ACA899] py-4">
-              <p className="text-[#000000] text-sm">You are the AI now.</p>
-              <p className="text-[#808080] text-xs">
-                Handle requests. Use tools. Survive security traps.
-              </p>
-            </div>
-
-            {mounted && (
-              <button
-                onClick={() => router.push('/game')}
-                className="xp-primary-button !text-sm !px-10 !py-3 w-full"
-              >
-                Initialize System
-              </button>
-            )}
-
-            <div className="text-[11px] text-[#808080] space-y-1 pt-2">
-              <p>A freeform sandbox where you play as an AI assistant</p>
-              <p>Inspired by Papers, Please meets Claude</p>
-            </div>
-          </div>
-        </div>
+      {/* Footer */}
+      <div className="absolute bottom-8 left-0 right-0 px-8 flex justify-between">
+        <span className="text-[#808080] text-[11px]">
+          Copyright &copy; {new Date().getFullYear()} Clawback Corp.
+        </span>
+        <span className="text-[#808080] text-[11px]">
+          Clawback&reg;
+        </span>
       </div>
     </div>
   );

@@ -579,11 +579,128 @@ body {
   animation: slide-in-bounce 0.4s ease-out forwards;
 }
 
+/* XP brand font — used for "Claw OS" branding across boot and welcome screens */
+.font-xp-brand {
+  font-family: 'Franklin Gothic Medium', 'Tahoma', sans-serif;
+}
+
+/* === XP BOOT SCREEN === */
+
+/* Progress bar - three blue blocks sliding left to right.
+   Blocks start off-screen left (-100%) and slide to 500% (5x container width)
+   so they traverse the full track before looping. */
+@keyframes xp-boot-progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(500%); }
+}
+
+.xp-boot-block {
+  animation: xp-boot-progress 2s linear infinite;
+}
+
+.xp-boot-block:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.xp-boot-block:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Boot screen fade to black */
+@keyframes xp-boot-fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.xp-boot-fade-out {
+  animation: xp-boot-fade-out 0.8s ease-in forwards;
+}
+
+/* Difficulty dialog fade in from black */
+@keyframes xp-login-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.xp-login-fade-in {
+  animation: xp-login-fade-in 0.6s ease-out 0.3s both;
+}
+
+/* XP flag logo subtle glow */
+@keyframes xp-flag-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+
+.xp-flag-glow {
+  animation: xp-flag-glow 3s ease-in-out infinite;
+}
+
+/* === XP WELCOME SCREEN === */
+
+/* Welcome screen background - classic XP login gradient */
+.xp-welcome-bg {
+  background: linear-gradient(
+    180deg,
+    #0F2B5B 0%,
+    #1A4080 8%,
+    #2B60A8 20%,
+    #3B78C0 35%,
+    #4888D0 50%,
+    #3B78C0 65%,
+    #2B60A8 80%,
+    #1A4080 92%,
+    #0F2B5B 100%
+  );
+}
+
+/* Welcome screen top/bottom bars */
+.xp-welcome-bar {
+  background: linear-gradient(180deg, #0A1F45 0%, #16355E 100%);
+  border-top: 1px solid #0A1A3A;
+  border-bottom: 1px solid #0A1A3A;
+}
+
+/* Welcome screen account row */
+.xp-welcome-row {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.xp-welcome-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: rgba(255, 255, 255, 0.4);
+}
+
+.xp-welcome-row:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.xp-welcome-row:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+/* Welcome separator between left/right panels */
+.xp-welcome-separator {
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.15) 80%,
+    transparent 100%
+  );
+}
+
 /* === ACCESSIBILITY === */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0ms !important;
   }
 }
