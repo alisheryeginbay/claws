@@ -44,6 +44,7 @@
   /* Fonts */
   --font-mono: 'Lucida Console', 'Consolas', ui-monospace, monospace;
   --font-xp: 'Tahoma', 'Segoe UI', 'Arial', sans-serif;
+  --font-xp-title: 'Trebuchet MS', 'Tahoma', 'Segoe UI', sans-serif;
 }
 
 /* === SCROLLBARS (XP classic) === */
@@ -97,7 +98,7 @@ body {
   background: linear-gradient(180deg, #0058EE 0%, #3593FF 4%, #2B71D0 48%, #3B9AFF 50%, #1D5DB3 96%, #0053E8 100%);
   padding: 4px 6px;
   color: #FFFFFF;
-  font-family: var(--font-xp);
+  font-family: var(--font-xp-title);
   font-weight: bold;
   font-size: 13px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
@@ -315,7 +316,7 @@ body {
   background: linear-gradient(180deg, #7A96DF 0%, #A4B8E4 4%, #7A96DF 48%, #A4B8E4 50%, #7A96DF 96%, #6B8AD5 100%);
   padding: 4px 6px;
   color: #D8D8D8;
-  font-family: var(--font-xp);
+  font-family: var(--font-xp-title);
   font-weight: bold;
   font-size: 13px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
