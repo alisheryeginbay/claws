@@ -12,6 +12,7 @@ const ICONS: { toolId: ToolId; label: string; icon: string }[] = [
   { toolId: 'email', label: 'Outlook\nExpress', icon: 'outlook-express' },
   { toolId: 'search', label: 'Internet\nExplorer', icon: 'internet-explorer-6' },
   { toolId: 'calendar', label: 'Calendar', icon: 'date-and-time' },
+  { toolId: 'minesweeper', label: 'Minesweeper', icon: 'minesweeper' },
 ];
 
 export function DesktopIcons() {

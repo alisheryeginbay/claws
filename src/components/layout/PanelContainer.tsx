@@ -11,6 +11,7 @@ import { EmailClient } from '@/components/tools/EmailClient';
 import { WebSearch } from '@/components/tools/WebSearch';
 import { Calendar } from '@/components/tools/Calendar';
 import { Settings } from '@/components/tools/Settings';
+import { Minesweeper } from '@/components/tools/Minesweeper';
 import type { ToolId } from '@/types';
 
 const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
@@ -22,6 +23,7 @@ const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
   search: WebSearch,
   calendar: Calendar,
   settings: Settings,
+  minesweeper: Minesweeper,
 };
 
 const TOOL_LABELS: Record<ToolId, string> = {
@@ -33,6 +35,7 @@ const TOOL_LABELS: Record<ToolId, string> = {
   search: 'Web Search',
   calendar: 'Calendar',
   settings: 'Display Properties',
+  minesweeper: 'Minesweeper',
 };
 
 export function PanelContainer() {

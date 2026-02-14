@@ -66,7 +66,7 @@ export interface Conversation {
 
 // --- Tools ---
 
-export type ToolId = 'terminal' | 'files' | 'clawgram' | 'whatsclaw' | 'email' | 'search' | 'calendar' | 'settings';
+export type ToolId = 'terminal' | 'files' | 'clawgram' | 'whatsclaw' | 'email' | 'search' | 'calendar' | 'settings' | 'minesweeper';
 
 export type MessengerApp = 'clawgram' | 'whatsclaw';
 

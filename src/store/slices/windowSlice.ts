@@ -10,6 +10,7 @@ const WINDOW_DEFAULTS: Record<ToolId, { width: number; height: number; minWidth:
   search: { width: 700, height: 500, minWidth: 400, minHeight: 300, title: 'Internet Explorer', icon: 'internet-explorer-6' },
   calendar: { width: 600, height: 500, minWidth: 400, minHeight: 350, title: 'Calendar', icon: 'date-and-time' },
   settings: { width: 480, height: 420, minWidth: 400, minHeight: 350, title: 'Display Properties', icon: 'display-properties' },
+  minesweeper: { width: 280, height: 380, minWidth: 200, minHeight: 300, title: 'Minesweeper', icon: 'minesweeper' },
 };
 
 export interface WindowSlice {
