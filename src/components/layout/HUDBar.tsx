@@ -224,7 +224,7 @@ export function HUDBar() {
         <div className="flex items-center gap-1 text-white">
           <Clock size={10} />
           <span className="text-[10px] font-mono">{formatDay(clock.day)}</span>
-          <span className="text-[10px] font-mono">{formatTime(clock.hour, clock.minute)}</span>
+          <span className="text-[10px] font-mono">{formatTime(clock.hour, clock.minute, clock.second)}</span>
         </div>
       </div>
     </div>

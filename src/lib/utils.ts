@@ -9,10 +9,14 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 11);
 }
 
-export function formatTime(hour: number, minute: number): string {
+export function formatTime(hour: number, minute: number, second?: number): string {
   const period = hour >= 12 ? 'PM' : 'AM';
   const displayHour = hour % 12 || 12;
   const displayMinute = minute.toString().padStart(2, '0');
+  if (second != null) {
+    const displaySecond = second.toString().padStart(2, '0');
+    return `${displayHour}:${displayMinute}:${displaySecond} ${period}`;
+  }
   return `${displayHour}:${displayMinute} ${period}`;
 }
 

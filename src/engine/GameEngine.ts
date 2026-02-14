@@ -93,7 +93,7 @@ export class GameEngine {
     // Dynamic interval based on speed
     const runLoop = () => {
       const state = useGameStore.getState();
-      const interval = state.clock.speed === 'fast' ? 250 : 500;
+      const interval = state.clock.speed === 'fast' ? 500 : 1000;
 
       tick();
 
