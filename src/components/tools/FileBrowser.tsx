@@ -1,140 +1,538 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { VirtualFS } from '@/systems/tools/VirtualFS';
-import { cn } from '@/lib/utils';
-import { ChevronRight, ChevronDown, X } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { XPIcon } from '@/components/ui/XPIcon';
 import type { VFSNode } from '@/types';
 
 export function FileBrowser() {
-  const openFiles = useGameStore((s) => s.tools.openFiles);
-  const activeFile = useGameStore((s) => s.tools.activeFile);
   const openFile = useGameStore((s) => s.openFile);
-  const closeFile = useGameStore((s) => s.closeFile);
-  const setActiveFile = useGameStore((s) => s.setActiveFile);
+
+  // Navigation state
+  const [currentDirectory, setCurrentDirectory] = useState('/home/user');
+  const [history, setHistory] = useState<string[]>(['/home/user']);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  // View state
+  const [viewingFile, setViewingFile] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [sidebarMode, setSidebarMode] = useState<'tasks' | 'folders'>('tasks');
+  const [viewMode, setViewMode] = useState<'icons' | 'details'>('icons');
+  const [showViewsDropdown, setShowViewsDropdown] = useState(false);
+  const [collapsedPanels, setCollapsedPanels] = useState<Record<string, boolean>>({});
+
+  // Address bar
+  const [addressValue, setAddressValue] = useState('/home/user');
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+
+  const canGoBack = historyIndex > 0;
+  const canGoForward = historyIndex < history.length - 1;
+  const canGoUp = currentDirectory !== '/';
+
+  const navigateTo = useCallback((path: string) => {
+    const node = VirtualFS.getNode(path, '/');
+    if (!node) return;
+
+    if (node.type === 'directory') {
+      setViewingFile(null);
+      setSelectedItem(null);
+      setCurrentDirectory(path);
+      setAddressValue(path);
+      setHistory(prev => [...prev.slice(0, historyIndex + 1), path]);
+      setHistoryIndex(prev => prev + 1);
+    } else {
+      openFile(path);
+      setViewingFile(path);
+      setAddressValue(path);
+    }
+  }, [historyIndex, openFile]);
+
+  const goBack = useCallback(() => {
+    if (historyIndex <= 0) return;
+    const newIndex = historyIndex - 1;
+    setHistoryIndex(newIndex);
+    const path = history[newIndex];
+    setCurrentDirectory(path);
+    setAddressValue(path);
+    setViewingFile(null);
+    setSelectedItem(null);
+  }, [historyIndex, history]);
+
+  const goForward = useCallback(() => {
+    if (historyIndex >= history.length - 1) return;
+    const newIndex = historyIndex + 1;
+    setHistoryIndex(newIndex);
+    const path = history[newIndex];
+    setCurrentDirectory(path);
+    setAddressValue(path);
+    setViewingFile(null);
+    setSelectedItem(null);
+  }, [historyIndex, history]);
+
+  const goUp = useCallback(() => {
+    if (currentDirectory === '/') return;
+    const parent = currentDirectory.substring(0, currentDirectory.lastIndexOf('/')) || '/';
+    navigateTo(parent);
+  }, [currentDirectory, navigateTo]);
+
+  const items = VirtualFS.listDir(currentDirectory, '/');
+  const dirName = currentDirectory.split('/').pop() || currentDirectory;
 
   return (
-    <div className="h-full flex">
-      {/* File tree sidebar */}
-      <div className="w-56 border-r border-claw-border overflow-y-auto bg-claw-surface">
-        <div className="px-3 py-2 text-[10px] text-claw-muted uppercase tracking-wider">
-          Explorer
-        </div>
-        <FileTree path="/home/user" depth={0} onSelect={(path) => openFile(path)} />
-      </div>
+    <div className="h-full flex flex-col" style={{ fontFamily: 'var(--font-xp)', fontSize: '11px' }}>
+      {/* Toolbar */}
+      <ExplorerToolbar
+        canGoBack={canGoBack}
+        canGoForward={canGoForward}
+        canGoUp={canGoUp}
+        onBack={goBack}
+        onForward={goForward}
+        onUp={goUp}
+        sidebarMode={sidebarMode}
+        onToggleSidebar={() => setSidebarMode(m => m === 'tasks' ? 'folders' : 'tasks')}
+        viewMode={viewMode}
+        onSetViewMode={setViewMode}
+        showViewsDropdown={showViewsDropdown}
+        onToggleViewsDropdown={() => setShowViewsDropdown(v => !v)}
+      />
 
-      {/* File content */}
-      <div className="flex-1 flex flex-col">
-        {/* Open file tabs */}
-        {openFiles.length > 0 && (
-          <div className="flex border-b border-claw-border bg-claw-surface overflow-x-auto">
-            {openFiles.map((path) => {
-              const name = path.split('/').pop() || path;
-              return (
-                <div
-                  key={path}
-                  onClick={() => setActiveFile(path)}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1 text-xs cursor-pointer border-r border-claw-border group',
-                    activeFile === path
-                      ? 'bg-claw-bg text-claw-text border-b border-claw-green'
-                      : 'text-claw-muted hover:text-claw-text'
-                  )}
-                >
-                  <FileIcon name={name} />
-                  <span className="truncate max-w-[120px]">{name}</span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); closeFile(path); }}
-                    className="opacity-0 group-hover:opacity-100 text-claw-muted hover:text-claw-text ml-1"
-                  >
-                    <X size={10} />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+      {/* Address Bar */}
+      <ExplorerAddressBar
+        value={addressValue}
+        isEditing={isEditingAddress}
+        onStartEditing={() => setIsEditingAddress(true)}
+        onChange={setAddressValue}
+        onSubmit={(path) => {
+          setIsEditingAddress(false);
+          navigateTo(path);
+        }}
+        onCancel={() => {
+          setIsEditingAddress(false);
+          setAddressValue(viewingFile || currentDirectory);
+        }}
+      />
+
+      {/* Main content area */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        {sidebarMode === 'tasks' ? (
+          <ExplorerTaskPane
+            currentDirectory={currentDirectory}
+            dirName={dirName}
+            itemCount={items.length}
+            collapsedPanels={collapsedPanels}
+            onTogglePanel={(id) => setCollapsedPanels(p => ({ ...p, [id]: !p[id] }))}
+            onNavigate={navigateTo}
+          />
+        ) : (
+          <ExplorerFolderTree
+            currentDirectory={currentDirectory}
+            onNavigate={navigateTo}
+          />
         )}
 
-        {/* File content area */}
-        <div className="flex-1 overflow-auto p-4">
-          {activeFile ? (
-            <FileContent path={activeFile} />
-          ) : (
-            <div className="flex items-center justify-center h-full text-claw-muted text-xs">
-              Select a file to view its contents
-            </div>
-          )}
-        </div>
+        {/* Content */}
+        {viewingFile ? (
+          <div className="xp-explorer-content">
+            <FileContent path={viewingFile} />
+          </div>
+        ) : (
+          <ExplorerContentArea
+            items={items}
+            viewMode={viewMode}
+            selectedItem={selectedItem}
+            onSelect={setSelectedItem}
+            onOpen={navigateTo}
+          />
+        )}
+      </div>
+
+      {/* Status Bar */}
+      <div className="xp-explorer-statusbar">
+        {viewingFile
+          ? viewingFile.split('/').pop()
+          : `${items.length} object(s)`}
       </div>
     </div>
   );
 }
 
-function FileTree({ path, depth, onSelect }: { path: string; depth: number; onSelect: (path: string) => void }) {
+/* ===== TOOLBAR ===== */
+
+function ExplorerToolbar({
+  canGoBack, canGoForward, canGoUp,
+  onBack, onForward, onUp,
+  sidebarMode, onToggleSidebar,
+  viewMode, onSetViewMode,
+  showViewsDropdown, onToggleViewsDropdown,
+}: {
+  canGoBack: boolean; canGoForward: boolean; canGoUp: boolean;
+  onBack: () => void; onForward: () => void; onUp: () => void;
+  sidebarMode: 'tasks' | 'folders'; onToggleSidebar: () => void;
+  viewMode: 'icons' | 'details'; onSetViewMode: (m: 'icons' | 'details') => void;
+  showViewsDropdown: boolean; onToggleViewsDropdown: () => void;
+}) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showViewsDropdown) return;
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        onToggleViewsDropdown();
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showViewsDropdown, onToggleViewsDropdown]);
+
+  return (
+    <div className="xp-toolbar">
+      <button className="xp-toolbar-button" disabled={!canGoBack} onClick={onBack}>
+        <XPIcon name="back" size={16} />
+        <span>Back</span>
+      </button>
+      <button className="xp-toolbar-button" disabled={!canGoForward} onClick={onForward}>
+        <XPIcon name="forward" size={16} />
+      </button>
+      <button className="xp-toolbar-button" disabled={!canGoUp} onClick={onUp}>
+        <XPIcon name="up" size={16} />
+      </button>
+
+      <div className="xp-toolbar-separator" />
+
+      <button className="xp-toolbar-button">
+        <XPIcon name="search" size={16} />
+        <span>Search</span>
+      </button>
+      <button
+        className={`xp-toolbar-button ${sidebarMode === 'folders' ? 'xp-toolbar-button-active' : ''}`}
+        onClick={onToggleSidebar}
+      >
+        <XPIcon name="folder-view" size={16} />
+        <span>Folders</span>
+      </button>
+
+      <div className="xp-toolbar-separator" />
+
+      <div className="relative" ref={dropdownRef}>
+        <button className="xp-toolbar-button" onClick={onToggleViewsDropdown}>
+          <XPIcon name={viewMode === 'icons' ? 'icon-view' : 'detail-view'} size={16} />
+          <span>▾</span>
+        </button>
+        {showViewsDropdown && (
+          <div className="xp-dropdown" style={{ left: 0 }}>
+            <div
+              className={`xp-dropdown-item ${viewMode === 'icons' ? 'xp-dropdown-item-active' : ''}`}
+              onClick={() => { onSetViewMode('icons'); onToggleViewsDropdown(); }}
+            >
+              <XPIcon name="icon-view" size={16} />
+              Icons
+            </div>
+            <div
+              className={`xp-dropdown-item ${viewMode === 'details' ? 'xp-dropdown-item-active' : ''}`}
+              onClick={() => { onSetViewMode('details'); onToggleViewsDropdown(); }}
+            >
+              <XPIcon name="detail-view" size={16} />
+              Details
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ===== ADDRESS BAR ===== */
+
+function ExplorerAddressBar({
+  value, isEditing, onStartEditing, onChange, onSubmit, onCancel,
+}: {
+  value: string; isEditing: boolean;
+  onStartEditing: () => void;
+  onChange: (v: string) => void;
+  onSubmit: (path: string) => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="xp-address-bar">
+      <span className="xp-address-bar-label">Address</span>
+      <XPIcon name="folder-closed" size={16} />
+      <input
+        className="xp-address-bar-input"
+        value={value}
+        readOnly={!isEditing}
+        onClick={() => { if (!isEditing) onStartEditing(); }}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') onSubmit(value);
+          if (e.key === 'Escape') onCancel();
+        }}
+        onBlur={() => { if (isEditing) onCancel(); }}
+      />
+      <button
+        className="xp-button"
+        style={{ padding: '1px 4px', display: 'flex', alignItems: 'center', gap: '2px' }}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => onSubmit(value)}
+      >
+        <XPIcon name="go" size={16} />
+        Go
+      </button>
+    </div>
+  );
+}
+
+/* ===== TASK PANE (Left sidebar — tasks mode) ===== */
+
+function ExplorerTaskPane({
+  currentDirectory, dirName, itemCount,
+  collapsedPanels, onTogglePanel, onNavigate,
+}: {
+  currentDirectory: string; dirName: string; itemCount: number;
+  collapsedPanels: Record<string, boolean>;
+  onTogglePanel: (id: string) => void;
+  onNavigate: (path: string) => void;
+}) {
+  return (
+    <div className="xp-task-pane">
+      {/* File and Folder Tasks */}
+      <TaskPanel
+        id="tasks"
+        title="File and Folder Tasks"
+        collapsed={!!collapsedPanels['tasks']}
+        onToggle={() => onTogglePanel('tasks')}
+      >
+        <button className="xp-task-link" onClick={() => onNavigate(currentDirectory)}>
+          <XPIcon name="new-folder" size={16} />
+          Make a new folder
+        </button>
+      </TaskPanel>
+
+      {/* Other Places */}
+      <TaskPanel
+        id="places"
+        title="Other Places"
+        collapsed={!!collapsedPanels['places']}
+        onToggle={() => onTogglePanel('places')}
+      >
+        <button className="xp-task-link" onClick={() => onNavigate('/home/user/documents')}>
+          <XPIcon name="my-documents" size={16} />
+          My Documents
+        </button>
+        <button className="xp-task-link" onClick={() => onNavigate('/home/user')}>
+          <XPIcon name="folder-closed" size={16} />
+          Home
+        </button>
+        <button className="xp-task-link" onClick={() => onNavigate('/')}>
+          <XPIcon name="my-computer" size={16} />
+          My Computer
+        </button>
+        <button className="xp-task-link" onClick={() => onNavigate('/')}>
+          <XPIcon name="my-network-places" size={16} />
+          My Network Places
+        </button>
+      </TaskPanel>
+
+      {/* Details */}
+      <TaskPanel
+        id="details"
+        title="Details"
+        collapsed={!!collapsedPanels['details']}
+        onToggle={() => onTogglePanel('details')}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+          <XPIcon name="folder-closed" size={48} />
+          <div>
+            <div style={{ fontWeight: 'bold' }}>{dirName}</div>
+            <div style={{ color: '#808080' }}>File Folder</div>
+          </div>
+        </div>
+        <div style={{ color: '#808080', fontSize: '11px' }}>
+          {itemCount} object(s)
+        </div>
+      </TaskPanel>
+    </div>
+  );
+}
+
+function TaskPanel({
+  id, title, collapsed, onToggle, children,
+}: {
+  id: string; title: string; collapsed: boolean;
+  onToggle: () => void; children: React.ReactNode;
+}) {
+  return (
+    <div style={{ marginBottom: collapsed ? '8px' : '0' }}>
+      <div
+        className={`xp-task-panel-header ${collapsed ? 'xp-task-panel-header-collapsed' : ''}`}
+        onClick={onToggle}
+      >
+        <span>{title}</span>
+        {collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+      </div>
+      {!collapsed && (
+        <div className="xp-task-panel-body">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ===== FOLDER TREE (Left sidebar — folders mode) ===== */
+
+function ExplorerFolderTree({
+  currentDirectory, onNavigate,
+}: {
+  currentDirectory: string; onNavigate: (path: string) => void;
+}) {
+  return (
+    <div className="xp-folder-tree">
+      <FolderTreeNode path="/" depth={0} currentDirectory={currentDirectory} onNavigate={onNavigate} />
+    </div>
+  );
+}
+
+function FolderTreeNode({
+  path, depth, currentDirectory, onNavigate,
+}: {
+  path: string; depth: number; currentDirectory: string; onNavigate: (path: string) => void;
+}) {
   const [expanded, setExpanded] = useState(depth < 2);
   const node = VirtualFS.getNode(path, '/');
-  if (!node) return null;
+  if (!node || node.type !== 'directory') return null;
 
-  const items = VirtualFS.listDir(path, '/');
-
-  if (node.type === 'file') {
-    return (
-      <button
-        onClick={() => onSelect(path)}
-        className="flex items-center gap-1 px-2 py-0.5 text-xs text-claw-text hover:bg-claw-surface-alt w-full text-left"
-        style={{ paddingLeft: `${depth * 12 + 8}px` }}
-      >
-        <FileIcon name={node.name} />
-        <span className="truncate">{node.name}</span>
-      </button>
-    );
-  }
+  const items = VirtualFS.listDir(path, '/').filter(n => n.type === 'directory');
+  const isSelected = currentDirectory === path;
 
   return (
     <div>
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-1 px-2 py-0.5 text-xs text-claw-text hover:bg-claw-surface-alt w-full text-left"
-        style={{ paddingLeft: `${depth * 12 + 8}px` }}
+      <div
+        className={`xp-tree-item ${isSelected ? 'xp-tree-item-selected' : ''}`}
+        style={{ paddingLeft: `${depth * 16 + 4}px` }}
+        onClick={() => {
+          setExpanded(!expanded);
+          onNavigate(path);
+        }}
       >
-        {expanded ? <ChevronDown size={12} className="text-claw-muted" /> : <ChevronRight size={12} className="text-claw-muted" />}
+        {items.length > 0 ? (
+          expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />
+        ) : (
+          <span style={{ width: 12 }} />
+        )}
         <XPIcon name={expanded ? 'folder-opened' : 'folder-closed'} size={16} />
-        <span className="truncate">{node.name}</span>
-      </button>
+        <span className="truncate">{node.name === '/' ? 'My Computer' : node.name}</span>
+      </div>
       {expanded && items.map((child) => (
-        <FileTree key={child.path} path={child.path} depth={depth + 1} onSelect={onSelect} />
+        <FolderTreeNode
+          key={child.path}
+          path={child.path}
+          depth={depth + 1}
+          currentDirectory={currentDirectory}
+          onNavigate={onNavigate}
+        />
       ))}
     </div>
   );
 }
 
+/* ===== CONTENT AREA ===== */
+
+function ExplorerContentArea({
+  items, viewMode, selectedItem, onSelect, onOpen,
+}: {
+  items: VFSNode[];
+  viewMode: 'icons' | 'details';
+  selectedItem: string | null;
+  onSelect: (path: string | null) => void;
+  onOpen: (path: string) => void;
+}) {
+  if (viewMode === 'details') {
+    return (
+      <div className="xp-explorer-content">
+        <table className="xp-details-table">
+          <thead className="xp-details-header">
+            <tr>
+              <th style={{ width: '45%' }}>Name</th>
+              <th style={{ width: '20%' }}>Size</th>
+              <th style={{ width: '35%' }}>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr
+                key={item.path}
+                className={`xp-details-row ${selectedItem === item.path ? 'xp-details-row-selected' : ''}`}
+                onClick={() => onSelect(item.path)}
+                onDoubleClick={() => onOpen(item.path)}
+              >
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {item.type === 'directory'
+                      ? <XPIcon name="folder-closed" size={16} />
+                      : <FileIcon name={item.name} />}
+                    <span>{item.name}</span>
+                  </div>
+                </td>
+                <td>{item.type === 'file' ? formatSize(item.size) : ''}</td>
+                <td>{item.type === 'directory' ? 'File Folder' : getFileType(item.name)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  // Icons view
+  return (
+    <div className="xp-explorer-content" onClick={() => onSelect(null)}>
+      <div className="xp-icon-grid">
+        {items.map((item) => (
+          <div
+            key={item.path}
+            className={`xp-icon-item ${selectedItem === item.path ? 'xp-icon-item-selected' : ''}`}
+            onClick={(e) => { e.stopPropagation(); onSelect(item.path); }}
+            onDoubleClick={() => onOpen(item.path)}
+          >
+            {item.type === 'directory'
+              ? <XPIcon name="folder-closed" size={48} />
+              : <FileIcon48 name={item.name} />}
+            <span className="xp-icon-label">{item.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ===== FILE CONTENT VIEWER ===== */
+
 function FileContent({ path }: { path: string }) {
   const content = VirtualFS.readFile(path, '/');
   if (content === null) {
-    return <div className="text-claw-red text-xs">File not found: {path}</div>;
+    return <div style={{ color: '#E04040', padding: '12px', fontSize: '11px' }}>File not found: {path}</div>;
   }
 
   const ext = path.split('.').pop() || '';
   const lines = content.split('\n');
 
   return (
-    <div className="font-mono text-xs">
-      {/* File path */}
-      <div className="text-claw-muted text-[10px] mb-2 pb-1 border-b border-claw-border">
+    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '8px' }}>
+      <div style={{ color: '#808080', fontSize: '10px', marginBottom: '8px', paddingBottom: '4px', borderBottom: '1px solid #D0D0D0' }}>
         {path}
       </div>
-      {/* Content with line numbers */}
-      <div className="flex">
-        <div className="pr-3 text-claw-dim text-right select-none border-r border-claw-border/50 mr-3">
+      <div style={{ display: 'flex' }}>
+        <div style={{ paddingRight: '12px', textAlign: 'right', userSelect: 'none', borderRight: '1px solid #E0E0E0', marginRight: '12px', color: '#A0A0A0' }}>
           {lines.map((_, i) => (
-            <div key={i} className="leading-5">{i + 1}</div>
+            <div key={i} style={{ lineHeight: '20px' }}>{i + 1}</div>
           ))}
         </div>
-        <pre className="flex-1 overflow-x-auto">
+        <pre style={{ flex: 1, overflowX: 'auto', margin: 0 }}>
           {lines.map((line, i) => (
-            <div key={i} className={cn('leading-5', getLineColor(line, ext))}>
+            <div key={i} style={{ lineHeight: '20px', color: getLineColor(line, ext) }}>
               {line || ' '}
             </div>
           ))}
@@ -144,32 +542,54 @@ function FileContent({ path }: { path: string }) {
   );
 }
 
+/* ===== HELPERS ===== */
+
 function FileIcon({ name }: { name: string }) {
   const ext = name.split('.').pop()?.toLowerCase() || '';
   const iconMap: Record<string, string> = {
-    js: 'java-script',
-    ts: 'java-script',
-    tsx: 'java-script',
-    jsx: 'java-script',
-    py: 'generic-document',
-    html: 'html',
-    css: 'css',
-    md: 'generic-text-document',
-    json: 'generic-document',
-    txt: 'generic-text-document',
-    csv: 'generic-document',
-    env: 'generic-document',
-    log: 'generic-document',
-    xml: 'xml',
+    js: 'java-script', ts: 'java-script', tsx: 'java-script', jsx: 'java-script',
+    py: 'generic-document', html: 'html', css: 'css',
+    md: 'generic-text-document', json: 'generic-document',
+    txt: 'generic-text-document', csv: 'generic-document',
+    env: 'generic-document', log: 'generic-document', xml: 'xml',
   };
   return <XPIcon name={iconMap[ext] || 'generic-document'} size={16} />;
 }
 
+function FileIcon48({ name }: { name: string }) {
+  const ext = name.split('.').pop()?.toLowerCase() || '';
+  const iconMap: Record<string, string> = {
+    js: 'java-script', ts: 'java-script', tsx: 'java-script', jsx: 'java-script',
+    py: 'generic-document', html: 'html', css: 'css',
+    md: 'generic-text-document', json: 'generic-document',
+    txt: 'generic-text-document', csv: 'generic-document',
+    env: 'generic-document', log: 'generic-document', xml: 'xml',
+  };
+  return <XPIcon name={iconMap[ext] || 'generic-document'} size={48} />;
+}
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getFileType(name: string): string {
+  const ext = name.split('.').pop()?.toLowerCase() || '';
+  const types: Record<string, string> = {
+    js: 'JavaScript File', ts: 'TypeScript File', py: 'Python File',
+    html: 'HTML Document', css: 'CSS Stylesheet', md: 'Markdown Document',
+    json: 'JSON File', txt: 'Text Document', csv: 'CSV File',
+    env: 'Environment File', log: 'Log File', xml: 'XML Document',
+  };
+  return types[ext] || 'File';
+}
+
 function getLineColor(line: string, ext: string): string {
   const trimmed = line.trim();
-  if (trimmed.startsWith('#') || trimmed.startsWith('//') || trimmed.startsWith('*')) return 'text-claw-dim';
-  if (trimmed.startsWith('import ') || trimmed.startsWith('from ') || trimmed.startsWith('const ') || trimmed.startsWith('let ') || trimmed.startsWith('var ')) return 'text-claw-blue';
-  if (trimmed.startsWith('def ') || trimmed.startsWith('class ') || trimmed.startsWith('function')) return 'text-claw-purple';
-  if (trimmed.startsWith('return ') || trimmed.startsWith('if ') || trimmed.startsWith('else') || trimmed.startsWith('for ') || trimmed.startsWith('while ')) return 'text-claw-orange';
-  return 'text-claw-text/80';
+  if (trimmed.startsWith('#') || trimmed.startsWith('//') || trimmed.startsWith('*')) return '#808080';
+  if (trimmed.startsWith('import ') || trimmed.startsWith('from ') || trimmed.startsWith('const ') || trimmed.startsWith('let ') || trimmed.startsWith('var ')) return '#0054E3';
+  if (trimmed.startsWith('def ') || trimmed.startsWith('class ') || trimmed.startsWith('function')) return '#7B68EE';
+  if (trimmed.startsWith('return ') || trimmed.startsWith('if ') || trimmed.startsWith('else') || trimmed.startsWith('for ') || trimmed.startsWith('while ')) return '#FF8C00';
+  return '#000000';
 }
