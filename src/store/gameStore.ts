@@ -7,16 +7,14 @@ import { createResourceSlice, type ResourceSlice } from './slices/resourceSlice'
 import { createScoreSlice, type ScoreSlice } from './slices/scoreSlice';
 import { createWindowSlice, type WindowSlice } from './slices/windowSlice';
 import { createSettingsSlice, type SettingsSlice } from './slices/settingsSlice';
-import type { GamePhase, Difficulty, GameNotification, Email, CalendarEvent, SearchResult, NpcPersona } from '@/types';
+import type { GamePhase, GameNotification, Email, CalendarEvent, SearchResult, NpcPersona } from '@/types';
 import { generateId } from '@/lib/utils';
 import { resetGenerationService } from '@/services/generation';
 
 export interface GameSlice {
   // Meta
   phase: GamePhase;
-  difficulty: Difficulty;
   setPhase: (phase: GamePhase) => void;
-  setDifficulty: (difficulty: Difficulty) => void;
 
   // Notifications
   notifications: GameNotification[];
@@ -58,10 +56,8 @@ export const useGameStore = create<StoreState>()((...a) => ({
   ...createSettingsSlice(...a),
 
   // Meta
-  phase: 'start',
-  difficulty: 'normal',
+  phase: 'generating',
   setPhase: (phase) => a[0]({ phase }),
-  setDifficulty: (difficulty) => a[0]({ difficulty }),
 
   // Notifications
   notifications: [],
@@ -133,7 +129,7 @@ export const useGameStore = create<StoreState>()((...a) => ({
     store.resetWindows();
     resetGenerationService();
     set({
-      phase: 'start',
+      phase: 'generating',
       notifications: [],
       emails: [],
       calendarEvents: [],

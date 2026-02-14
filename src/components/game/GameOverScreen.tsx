@@ -68,7 +68,7 @@ export function GameOverScreen() {
             <button
               onClick={() => {
                 engine.stop();
-                useGameStore.getState().setPhase('start');
+                useGameStore.getState().resetGame();
               }}
               className="xp-primary-button px-8 py-2.5"
             >

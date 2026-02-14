@@ -11,7 +11,7 @@ import { GameOverScreen } from '@/components/game/GameOverScreen';
 function GameContent() {
   const phase = useGameStore((s) => s.phase);
 
-  if (phase === 'start' || phase === 'generating' || phase === 'selecting') {
+  if (phase === 'generating' || phase === 'selecting') {
     return <StartScreen />;
   }
 

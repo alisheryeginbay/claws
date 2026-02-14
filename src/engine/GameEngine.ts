@@ -12,10 +12,9 @@ import { resetAiService } from '@/services/ai';
 import { resetGenerationService } from '@/services/generation';
 import { SEED_EMAILS } from '@/data/emails';
 import { SEED_CALENDAR_EVENTS } from '@/data/calendar-events';
-import type { Difficulty, NpcPersona } from '@/types';
+import type { NpcPersona } from '@/types';
 
 interface StartParams {
-  difficulty: Difficulty;
   selectedNpc: NpcPersona;
 }
 
@@ -29,7 +28,7 @@ export class GameEngine {
   private resourceSimulator = new ResourceSimulator();
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
-  start({ difficulty, selectedNpc }: StartParams): void {
+  start({ selectedNpc }: StartParams): void {
     const state = useGameStore.getState();
 
     // Reset everything
@@ -39,9 +38,6 @@ export class GameEngine {
     EventBus.clear();
     resetAiService();
     resetGenerationService();
-
-    // Set game state
-    state.setDifficulty(difficulty);
 
     // Initialize single NPC
     state.initializeNpc(selectedNpc);

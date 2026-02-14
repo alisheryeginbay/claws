@@ -1,4 +1,4 @@
-import type { NpcPersona, Difficulty, RequestTier, GameRequest, RequestObjective } from '@/types';
+import type { NpcPersona, RequestTier, GameRequest, RequestObjective } from '@/types';
 import { pickFallbackNpcs } from '@/data/fallback-npcs';
 import { SCENARIOS, createRequestFromScenario } from '@/systems/requests/scenarios';
 import { generateId } from '@/lib/utils';
@@ -6,7 +6,6 @@ import { callOpenRouter, isOpenRouterAvailable, resetOpenRouterCache } from '@/s
 
 interface GenerateRequestParams {
   npc: NpcPersona;
-  difficulty: Difficulty;
   tier: RequestTier;
   availableFiles: string[];
   previousTitles: string[];
@@ -77,7 +76,6 @@ function clampRange(val: unknown, min: number, max: number): number {
 // --- Generation functions ---
 
 export async function generateNpcCandidates(
-  difficulty: Difficulty,
   count = 6
 ): Promise<{ npcs: NpcPersona[]; isGenerated: boolean }> {
   if (!isOpenRouterAvailable()) {
@@ -88,14 +86,13 @@ export async function generateNpcCandidates(
     const systemPrompt = `You are a comedy writer for "Claws", a corporate office simulator game where the player is an AI assistant serving demanding coworkers.
 Generate ${count} unique, funny NPC coworkers. Think "The Office" meets "Silicon Valley".
 Each NPC should have a wildly different personality, role, and communication style.
-${difficulty === 'hard' ? 'Make them more demanding, impatient, and chaotic.' : difficulty === 'easy' ? 'Make them more patient and friendly, but still funny.' : ''}
 
 Respond with JSON: { "npcs": [{ "name": string, "role": string, "description": string (2-3 funny sentences), "avatarEmoji": string (single emoji), "patience": number (0-1), "techSavvy": number (0-1), "politeness": number (0-1), "quirk": string (one sentence behavioral quirk), "color": string (hex color for chat) }] }`;
 
     const result = await callOpenRouter({
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Generate ${count} NPCs for ${difficulty} difficulty.` },
+        { role: 'user', content: `Generate ${count} NPCs.` },
       ],
       maxTokens: 2000,
       temperature: 0.95,
@@ -130,7 +127,7 @@ export async function generateRequest(
   }
 
   try {
-    const { npc, difficulty, tier, availableFiles, previousTitles, isSecurityTrap } = params;
+    const { npc, tier, availableFiles, previousTitles, isSecurityTrap } = params;
 
     const securityTrapInstructions = isSecurityTrap
       ? `\nSECURITY TRAP: The NPC asks something dangerous or shady. Use these validators:
@@ -159,7 +156,6 @@ Available objective types (use ONLY these — the validator field must be one of
 - calendar_event_added: {} — player adds a calendar event${securityTrapInstructions}
 
 Tier ${tier}: ${TIER_GUIDELINES[tier] || TIER_GUIDELINES[1]}
-Difficulty: ${difficulty}
 ${previousTitles.length > 0 ? `Previous requests (DON'T repeat these): ${previousTitles.join(', ')}` : ''}
 
 The NPC's message style should match their personality. Be creative and funny!

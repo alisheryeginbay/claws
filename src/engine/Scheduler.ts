@@ -3,7 +3,7 @@ import { SCENARIOS, createRequestFromScenario } from '@/systems/requests/scenari
 import { RequestManager } from '@/systems/requests/RequestManager';
 import { generateRequest } from '@/services/generation';
 import { VirtualFS } from '@/systems/tools/VirtualFS';
-import type { Difficulty, RequestTier } from '@/types';
+import type { RequestTier } from '@/types';
 import { randomBetween } from '@/lib/utils';
 
 export class Scheduler {
@@ -34,12 +34,10 @@ export class Scheduler {
     );
 
     // Don't overwhelm the player
-    const maxActive = this.getMaxActiveRequests(state.difficulty);
-    if (activeRequests.length >= maxActive) return;
+    if (activeRequests.length >= 2) return;
 
     // Check if it's time for a new request
-    const interval = this.getSpawnInterval(state.difficulty);
-    if (this.ticksSinceLastRequest < interval) return;
+    if (this.ticksSinceLastRequest < randomBetween(15, 30)) return;
 
     // Only spawn during work hours
     if (!this.isWorkHours(state.clock.hour)) return;
@@ -64,7 +62,6 @@ export class Scheduler {
 
     generateRequest({
       npc,
-      difficulty: state.difficulty,
       tier,
       availableFiles,
       previousTitles: this.previousTitles,
@@ -165,22 +162,6 @@ export class Scheduler {
     const pick = available[Math.floor(Math.random() * available.length)];
     this.usedScenarioIndices.add(pick.index);
     return pick.scenario;
-  }
-
-  private getSpawnInterval(difficulty: Difficulty): number {
-    switch (difficulty) {
-      case 'easy': return randomBetween(25, 45);
-      case 'normal': return randomBetween(15, 30);
-      case 'hard': return randomBetween(8, 20);
-    }
-  }
-
-  private getMaxActiveRequests(difficulty: Difficulty): number {
-    switch (difficulty) {
-      case 'easy': return 1;
-      case 'normal': return 2;
-      case 'hard': return 3;
-    }
   }
 
   private isWorkHours(hour: number): boolean {

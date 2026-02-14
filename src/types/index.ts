@@ -5,8 +5,7 @@
 // --- Game State ---
 
 export type GameSpeed = 'paused' | 'normal' | 'fast';
-export type Difficulty = 'easy' | 'normal' | 'hard';
-export type GamePhase = 'start' | 'generating' | 'selecting' | 'playing' | 'paused' | 'gameover';
+export type GamePhase = 'generating' | 'selecting' | 'playing' | 'paused' | 'gameover';
 
 // --- Clock ---
 
@@ -264,7 +263,6 @@ export interface DesktopIcon {
 export interface GameState {
   // Meta
   phase: GamePhase;
-  difficulty: Difficulty;
 
   // Clock
   clock: ClockState;
