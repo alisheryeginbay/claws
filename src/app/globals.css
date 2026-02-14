@@ -653,24 +653,94 @@ body {
 
 /* Welcome screen account row */
 .xp-welcome-row {
-  padding: 8px 16px;
+  padding: 10px 16px;
   cursor: pointer;
-  transition: background 0.15s;
-  border-left: 3px solid transparent;
+  transition: all 0.15s ease;
+  border-radius: 3px;
+  position: relative;
 }
 
 .xp-welcome-row:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-left-color: rgba(255, 255, 255, 0.4);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 200, 60, 0.0) 0%,
+    rgba(255, 200, 60, 0.12) 20%,
+    rgba(255, 200, 60, 0.18) 50%,
+    rgba(255, 200, 60, 0.12) 80%,
+    rgba(255, 200, 60, 0.0) 100%
+  );
 }
 
 .xp-welcome-row:active {
-  background: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 180, 40, 0.0) 0%,
+    rgba(255, 180, 40, 0.15) 20%,
+    rgba(255, 180, 40, 0.22) 50%,
+    rgba(255, 180, 40, 0.15) 80%,
+    rgba(255, 180, 40, 0.0) 100%
+  );
 }
 
 .xp-welcome-row:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline: 1px dotted rgba(255, 255, 255, 0.6);
   outline-offset: 2px;
+}
+
+/* Welcome screen avatar frame - XP 3D beveled photo border */
+.xp-welcome-avatar-frame {
+  padding: 3px;
+  background: #d4d0c8;
+  border: 1px solid #808080;
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  border-right-color: #404040;
+  border-bottom-color: #404040;
+  box-shadow:
+    inset 1px 1px 0 #c0c0c0,
+    inset -1px -1px 0 #808080;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+/* Welcome screen avatar glow on hover - iconic XP orange selection */
+.xp-welcome-row:hover .xp-welcome-avatar-frame {
+  border-color: #e8a317;
+  box-shadow:
+    0 0 3px 1px rgba(255, 180, 40, 0.5),
+    0 0 8px 2px rgba(255, 165, 0, 0.35),
+    0 0 14px 4px rgba(255, 140, 0, 0.15),
+    inset 1px 1px 0 rgba(255, 220, 120, 0.4),
+    inset -1px -1px 0 rgba(180, 120, 0, 0.3);
+}
+
+/* Welcome screen hover arrow indicator */
+.xp-welcome-arrow {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  color: #ffc83d;
+  font-size: 10px;
+}
+
+.xp-welcome-row:hover .xp-welcome-arrow {
+  opacity: 1;
+}
+
+/* Welcome screen shutdown button */
+.xp-welcome-shutdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-xp);
+  font-size: 11px;
+  color: #ffffff;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+  cursor: default;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+.xp-welcome-shutdown:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Welcome separator between left/right panels */
