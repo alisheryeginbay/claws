@@ -8,7 +8,8 @@ import type { ToolId } from '@/types';
 import {
   Terminal,
   FolderOpen,
-  MessageSquare,
+  Send,
+  Phone,
   Mail,
   Search,
   Calendar,
@@ -34,7 +35,8 @@ const RESOURCE_THRESHOLDS = {
 const TOOLS: { id: ToolId; icon: typeof Terminal; label: string }[] = [
   { id: 'terminal', icon: Terminal, label: 'Terminal' },
   { id: 'files', icon: FolderOpen, label: 'Files' },
-  { id: 'chat', icon: MessageSquare, label: 'Chat' },
+  { id: 'clawgram', icon: Send, label: 'Clawgram' },
+  { id: 'whatsclaw', icon: Phone, label: 'Whatsclaw' },
   { id: 'email', icon: Mail, label: 'Email' },
   { id: 'search', icon: Search, label: 'Search' },
   { id: 'calendar', icon: Calendar, label: 'Calendar' },
@@ -58,7 +60,7 @@ export function HUDBar() {
   const unreadEmails = emails.filter((e) => !e.isRead).length;
 
   function getBadge(toolId: ToolId): number | undefined {
-    if (toolId === 'chat' && totalUnread > 0) return totalUnread;
+    if ((toolId === 'clawgram' || toolId === 'whatsclaw') && totalUnread > 0) return totalUnread;
     if (toolId === 'email' && unreadEmails > 0) return unreadEmails;
     return undefined;
   }
@@ -68,7 +70,8 @@ export function HUDBar() {
 
   useEffect(() => {
     const badges: Record<string, number> = {
-      chat: totalUnread,
+      clawgram: totalUnread,
+      whatsclaw: totalUnread,
       email: unreadEmails,
     };
     const newPopping = new Set<string>();

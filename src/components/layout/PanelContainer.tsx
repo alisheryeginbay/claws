@@ -2,10 +2,11 @@
 
 import { useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { ResizablePanel } from '@/components/ui/ResizablePanel';
+
 import { Terminal } from '@/components/tools/Terminal';
 import { FileBrowser } from '@/components/tools/FileBrowser';
-import { ChatPanel } from '@/components/tools/ChatPanel';
+import { Clawgram } from '@/components/tools/Clawgram';
+import { Whatsclaw } from '@/components/tools/Whatsclaw';
 import { EmailClient } from '@/components/tools/EmailClient';
 import { WebSearch } from '@/components/tools/WebSearch';
 import { Calendar } from '@/components/tools/Calendar';
@@ -15,7 +16,8 @@ import type { ToolId } from '@/types';
 const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
   terminal: Terminal,
   files: FileBrowser,
-  chat: ChatPanel,
+  clawgram: Clawgram,
+  whatsclaw: Whatsclaw,
   email: EmailClient,
   search: WebSearch,
   calendar: Calendar,
@@ -25,7 +27,8 @@ const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
 const TOOL_LABELS: Record<ToolId, string> = {
   terminal: 'Terminal',
   files: 'File Browser',
-  chat: 'Chat',
+  clawgram: 'Clawgram',
+  whatsclaw: 'Whatsclaw',
   email: 'Email',
   search: 'Web Search',
   calendar: 'Calendar',
@@ -45,10 +48,11 @@ export function PanelContainer() {
       const toolMap: Record<string, ToolId> = {
         '1': 'terminal',
         '2': 'files',
-        '3': 'chat',
+        '3': 'clawgram',
         '4': 'email',
         '5': 'search',
         '6': 'calendar',
+        '7': 'whatsclaw',
       };
 
       if (e.altKey && toolMap[e.key]) {
@@ -61,45 +65,29 @@ export function PanelContainer() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setActiveTool]);
 
-  if (activeTool === 'chat') {
+  const isMessenger = activeTool === 'clawgram' || activeTool === 'whatsclaw';
+
+  if (isMessenger) {
     return (
-      <div className="h-full flex flex-col bg-white">
-        <div className="h-8 bg-[var(--color-xp-face)] border-b border-[#ACA899] flex items-center px-3">
-          <span className="text-xs text-[#000000] font-bold">
-            {TOOL_LABELS[activeTool]}
-          </span>
-          <span className="text-[10px] text-[#808080] ml-auto">Alt+1-6 to switch tools</span>
-        </div>
+      <div className="h-full flex flex-col">
         <div className="flex-1 overflow-hidden">
-          <ChatPanel />
+          <ActiveComponent />
         </div>
       </div>
     );
   }
 
   return (
-    <ResizablePanel
-      left={
-        <div className="h-full flex flex-col bg-[var(--color-xp-face)]">
-          <div className="h-8 bg-[var(--color-xp-face)] border-b border-[#ACA899] flex items-center px-3">
-            <span className="text-xs text-[#000000] font-bold">
-              {TOOL_LABELS[activeTool]}
-            </span>
-            <span className="text-[10px] text-[#808080] ml-auto">Alt+1-6 to switch tools</span>
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <ActiveComponent />
-          </div>
-        </div>
-      }
-      right={
-        <div className="h-full flex flex-col bg-white">
-          <ChatPanel />
-        </div>
-      }
-      defaultRatio={0.6}
-      minRatio={0.35}
-      maxRatio={0.75}
-    />
+    <div className="h-full flex flex-col bg-[var(--color-xp-face)]">
+      <div className="h-8 bg-[var(--color-xp-face)] border-b border-[#ACA899] flex items-center px-3">
+        <span className="text-xs text-[#000000] font-bold">
+          {TOOL_LABELS[activeTool]}
+        </span>
+        <span className="text-[10px] text-[#808080] ml-auto">Alt+1-7 to switch tools</span>
+      </div>
+      <div className="flex-1 overflow-hidden">
+        <ActiveComponent />
+      </div>
+    </div>
   );
 }

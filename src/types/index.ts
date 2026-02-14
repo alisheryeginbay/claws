@@ -34,6 +34,7 @@ export interface NpcPersona {
   color: string;        // accent color for chat bubbles
   description: string;  // funny bio for NPC selection screen
   quirk: string;        // behavioral quirk shown on card
+  preferredApp: MessengerApp;  // which messenger app this NPC uses
 }
 
 export interface NpcState {
@@ -43,6 +44,7 @@ export interface NpcState {
   reputation: number;         // -100 to 100
   messagesRead: boolean;
   isTyping: boolean;
+  goneAtTick?: number;        // tick when mood changed to 'gone'
 }
 
 // --- Chat ---
@@ -52,6 +54,7 @@ export interface ChatMessage {
   npcId: NpcId;
   text: string;
   timestamp: number;    // tick count
+  createdAt: number;    // Date.now() for real-time display
   isFromPlayer: boolean;
   isSystem?: boolean;
 }
@@ -64,7 +67,9 @@ export interface Conversation {
 
 // --- Tools ---
 
-export type ToolId = 'terminal' | 'files' | 'chat' | 'email' | 'search' | 'calendar' | 'settings';
+export type ToolId = 'terminal' | 'files' | 'clawgram' | 'whatsclaw' | 'email' | 'search' | 'calendar' | 'settings';
+
+export type MessengerApp = 'clawgram' | 'whatsclaw';
 
 export interface ToolState {
   activeTool: ToolId;

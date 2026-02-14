@@ -6,9 +6,11 @@ import { DesktopIcons } from './DesktopIcons';
 import { XPWindow } from './XPWindow';
 import { Taskbar } from './Taskbar';
 import { NotificationTray } from './NotificationTray';
+import { RequestsWidget } from './RequestsWidget';
 import { Terminal } from '@/components/tools/Terminal';
 import { FileBrowser } from '@/components/tools/FileBrowser';
-import { ChatPanel } from '@/components/tools/ChatPanel';
+import { Clawgram } from '@/components/tools/Clawgram';
+import { Whatsclaw } from '@/components/tools/Whatsclaw';
 import { EmailClient } from '@/components/tools/EmailClient';
 import { WebSearch } from '@/components/tools/WebSearch';
 import { Calendar } from '@/components/tools/Calendar';
@@ -19,7 +21,8 @@ import type { ToolId } from '@/types';
 const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
   terminal: Terminal,
   files: FileBrowser,
-  chat: ChatPanel,
+  clawgram: Clawgram,
+  whatsclaw: Whatsclaw,
   email: EmailClient,
   search: WebSearch,
   calendar: Calendar,
@@ -35,10 +38,13 @@ export function Desktop() {
   const wallpaper = useGameStore((s) => s.wallpaper);
   const wallpaperSrc = WALLPAPERS.find((w) => w.key === wallpaper)!.src;
 
-  // Auto-open Terminal and Chat on mount
+  // Auto-open Terminal and NPC's preferred messenger on mount
   useEffect(() => {
     useGameStore.getState().openWindow('terminal');
-    useGameStore.getState().openWindow('chat');
+    const npc = useGameStore.getState().selectedNpc;
+    if (npc?.preferredApp) {
+      useGameStore.getState().openWindow(npc.preferredApp);
+    }
   }, []);
 
   // Sync activeTool with focused window
@@ -57,10 +63,11 @@ export function Desktop() {
     const toolMap: Record<string, ToolId> = {
       '1': 'terminal',
       '2': 'files',
-      '3': 'chat',
+      '3': 'clawgram',
       '4': 'email',
       '5': 'search',
       '6': 'calendar',
+      '7': 'whatsclaw',
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -112,6 +119,9 @@ export function Desktop() {
             </XPWindow>
           );
         })}
+
+      {/* Desktop Widget - Active Requests */}
+      <RequestsWidget />
 
       {/* Taskbar */}
       <Taskbar />

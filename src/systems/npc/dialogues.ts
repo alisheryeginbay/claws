@@ -260,3 +260,74 @@ export function getGenericDialogue(mood: NpcMood): string {
   if (!pool || pool.length === 0) return '...';
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+const REPLY_DIALOGUES: Record<string, string[]> = {
+  sarah: [
+    "Got it, thanks for the update!",
+    "OK, sounds good! Let me know if you need anything.",
+    "Thanks! Keep me posted.",
+    "Great, appreciate you checking in!",
+  ],
+  devdan: [
+    "ack",
+    "k, sounds good",
+    "roger that",
+    "cool cool",
+  ],
+  karen: [
+    "Fine. Just make sure it gets done.",
+    "I expect results, not excuses.",
+    "Good. Don't let me down.",
+    "OK. I'll be checking back.",
+  ],
+  timmy: [
+    "Oh, thank you so much! 😊",
+    "OK awesome!! Thanks for responding!",
+    "Got it, thanks! Sorry for bothering you!",
+    "Yay! You're the best!",
+  ],
+  raj: [
+    "Copy that.",
+    "Understood, thanks.",
+    "OK, keep me in the loop.",
+    "Got it, I'll update the team.",
+  ],
+  luna: [
+    "Thanks! ✨",
+    "OK great, looking forward to it!",
+    "Got it, thank you! 💫",
+    "Perfect, sounds good!",
+  ],
+  ghost: [
+    "...",
+    "noted",
+    "k",
+    "hmm",
+  ],
+  drchen: [
+    "Acknowledged. I'll await the results.",
+    "Noted, thank you for the update.",
+    "Good. The data won't wait forever.",
+    "Understood. Carry on.",
+  ],
+};
+
+const GENERIC_REPLIES = [
+  "OK, got it.",
+  "Thanks for letting me know.",
+  "Understood.",
+  "Sounds good.",
+  "Alright, thanks.",
+];
+
+export function getReplyDialogue(npcId: string, mood: NpcMood): string {
+  // If NPC is angry/frustrated, use mood dialogues instead of friendly replies
+  if (mood === 'angry' || mood === 'frustrated') {
+    return getRandomDialogue(npcId, mood);
+  }
+  const pool = REPLY_DIALOGUES[npcId];
+  if (pool && pool.length > 0) {
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+  return GENERIC_REPLIES[Math.floor(Math.random() * GENERIC_REPLIES.length)];
+}

@@ -7,7 +7,8 @@ import type { ToolId } from '@/types';
 const ICONS: { toolId: ToolId; label: string; icon: string }[] = [
   { toolId: 'terminal', label: 'Command\nPrompt', icon: 'command-prompt' },
   { toolId: 'files', label: 'My Computer', icon: 'my-computer' },
-  { toolId: 'chat', label: 'MSN\nMessenger', icon: 'msn-messenger' },
+  { toolId: 'clawgram', label: 'Clawgram', icon: 'clawgram' },
+  { toolId: 'whatsclaw', label: 'Whatsclaw', icon: 'whatsclaw' },
   { toolId: 'email', label: 'Outlook\nExpress', icon: 'outlook-express' },
   { toolId: 'search', label: 'Internet\nExplorer', icon: 'internet-explorer-6' },
   { toolId: 'calendar', label: 'Calendar', icon: 'date-and-time' },

@@ -12,6 +12,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#00b4d8',
     description: 'Friendly product manager who always has "just one more thing" to add to the sprint.',
     quirk: 'Adds scope to every request mid-conversation',
+    preferredApp: 'whatsclaw',
   },
   devdan: {
     id: 'devdan',
@@ -24,6 +25,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#00ff9f',
     description: 'Speaks in code and git commands. Thinks meetings are a bug in the system.',
     quirk: 'Uses tech jargon for everything, even emotions',
+    preferredApp: 'clawgram',
   },
   karen: {
     id: 'karen',
@@ -36,6 +38,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#ff4444',
     description: 'Demands everything NOW. Cc\'s the CEO on every email thread.',
     quirk: 'Threatens to escalate constantly',
+    preferredApp: 'whatsclaw',
   },
   timmy: {
     id: 'timmy',
@@ -48,6 +51,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#ffd60a',
     description: 'Eager intern who asks adorable questions. Just happy to be here.',
     quirk: 'Apologizes for asking questions, then asks more',
+    preferredApp: 'clawgram',
   },
   raj: {
     id: 'raj',
@@ -60,6 +64,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#b388ff',
     description: 'Lives in the terminal. Gets paged at 3 AM so often he sleeps in the server room.',
     quirk: 'Checks monitoring dashboards mid-conversation',
+    preferredApp: 'clawgram',
   },
   luna: {
     id: 'luna',
@@ -72,6 +77,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#ff9f1c',
     description: 'Everything must be pixel-perfect. Notices if something is off by 1px.',
     quirk: 'Adds sparkle emojis to everything',
+    preferredApp: 'whatsclaw',
   },
   ghost: {
     id: 'ghost',
@@ -84,6 +90,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#6b7280',
     description: 'Nobody knows who this is or how they got access. Probably fine.',
     quirk: 'Speaks in cryptic half-sentences',
+    preferredApp: 'clawgram',
   },
   drchen: {
     id: 'drchen',
@@ -96,5 +103,6 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#00b4d8',
     description: 'Will turn any conversation into a statistics lesson. P-value or it didn\'t happen.',
     quirk: 'Cites statistical significance for mundane decisions',
+    preferredApp: 'whatsclaw',
   },
 };

@@ -1,9 +1,9 @@
 import { useGameStore } from '@/store/gameStore';
-import { getRandomDialogue } from '@/systems/npc/dialogues';
+import { getRandomDialogue, getReplyDialogue } from '@/systems/npc/dialogues';
 import type { NpcMood, GameRequest, NpcPersona } from '@/types';
 import { callOpenRouter, isOpenRouterAvailable, resetOpenRouterCache } from '@/services/openrouter';
 
-type MessageType = 'mood' | 'initial' | 'completion' | 'failure';
+type MessageType = 'mood' | 'initial' | 'completion' | 'failure' | 'reply';
 
 interface GenerateParams {
   npcId: string;
@@ -64,6 +64,14 @@ function buildUserMessage(params: GenerateParams): string {
         parts.push('Write a disappointed/frustrated reaction.');
       }
       break;
+    case 'reply':
+      parts.push(`Current mood: ${mood}. Patience: ${patiencePercent?.toFixed(0)}%.`);
+      if (request) {
+        parts.push(`You asked the AI assistant for help with: "${request.title}".`);
+      }
+      parts.push('The AI assistant just sent you a chat message. Write a short reply acknowledging it.');
+      parts.push('Keep it natural and conversational - 1 sentence max.');
+      break;
   }
 
   if (recentMessages && recentMessages.length > 0) {
@@ -85,6 +93,8 @@ function getFallback(params: GenerateParams): string {
       return request?.completionMessage || getRandomDialogue(npcId, 'happy');
     case 'failure':
       return request?.failureMessage || getRandomDialogue(npcId, 'angry');
+    case 'reply':
+      return getReplyDialogue(npcId, mood || 'neutral');
     default:
       return getRandomDialogue(npcId, 'neutral');
   }

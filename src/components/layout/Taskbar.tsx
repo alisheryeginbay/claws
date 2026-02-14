@@ -55,7 +55,8 @@ export function Taskbar() {
 
   useEffect(() => {
     const badges: Record<string, number> = {
-      chat: totalUnread,
+      clawgram: totalUnread,
+      whatsclaw: totalUnread,
       email: unreadEmails,
     };
     const newPopping = new Set<string>();
@@ -74,7 +75,7 @@ export function Taskbar() {
   }, [totalUnread, unreadEmails]);
 
   function getBadge(toolId: string): number | undefined {
-    if (toolId === 'chat' && totalUnread > 0) return totalUnread;
+    if ((toolId === 'clawgram' || toolId === 'whatsclaw') && totalUnread > 0) return totalUnread;
     if (toolId === 'email' && unreadEmails > 0) return unreadEmails;
     return undefined;
   }
