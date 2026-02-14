@@ -27,7 +27,7 @@ export interface NpcSlice {
   clearNpcCandidates: () => void;
   initializeNpc: (npc: NpcPersona) => void;
   setNpcMood: (npcId: string, mood: NpcMood) => void;
-  decayPatience: (npcId: string, amount: number) => void;
+  decayPatience: (npcId: string, amount: number, tick: number) => void;
   changeReputation: (npcId: string, delta: number) => void;
   setNpcTyping: (npcId: string, isTyping: boolean) => void;
   addMessage: (npcId: string, text: string, isFromPlayer: boolean, tick: number, isSystem?: boolean) => void;
@@ -68,15 +68,17 @@ export const createNpcSlice: StateCreator<NpcSlice> = (set) => ({
       };
     }),
 
-  decayPatience: (npcId, amount) =>
+  decayPatience: (npcId, amount, tick) =>
     set((state) => {
       const npc = state.npcs[npcId];
       if (!npc) return state;
       const newPatience = Math.max(0, npc.patienceRemaining - amount);
       let newMood = npc.mood;
+      let goneAtTick = npc.goneAtTick;
 
       if (newPatience <= 0 && npc.mood !== 'gone') {
         newMood = 'gone';
+        goneAtTick = tick;
       } else if (newPatience <= 20 && npc.mood !== 'angry' && npc.mood !== 'gone') {
         newMood = 'angry';
       } else if (newPatience <= 50 && npc.mood === 'waiting') {
@@ -86,7 +88,7 @@ export const createNpcSlice: StateCreator<NpcSlice> = (set) => ({
       return {
         npcs: {
           ...state.npcs,
-          [npcId]: { ...npc, patienceRemaining: newPatience, mood: newMood },
+          [npcId]: { ...npc, patienceRemaining: newPatience, mood: newMood, goneAtTick },
         },
       };
     }),
@@ -125,6 +127,7 @@ export const createNpcSlice: StateCreator<NpcSlice> = (set) => ({
         npcId,
         text,
         timestamp: tick,
+        createdAt: Date.now(),
         isFromPlayer,
         isSystem,
       };

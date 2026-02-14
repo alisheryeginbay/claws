@@ -44,10 +44,11 @@ export function Taskbar() {
   const setSpeed = useGameStore((s) => s.setSpeed);
   const phase = useGameStore((s) => s.phase);
 
-  const totalUnread = Object.values(conversations).reduce(
-    (sum, c) => sum + c.unreadCount,
-    0
-  );
+  const selectedNpc = useGameStore((s) => s.selectedNpc);
+
+  const totalUnread = Object.values(conversations).reduce((sum, c) => sum + c.unreadCount, 0);
+  const clawgramUnread = selectedNpc?.preferredApp === 'clawgram' ? totalUnread : 0;
+  const whatslawUnread = selectedNpc?.preferredApp === 'whatsclaw' ? totalUnread : 0;
   const unreadEmails = emails.filter((e) => !e.isRead).length;
 
   const prevBadges = useRef<Record<string, number>>({});
@@ -55,7 +56,8 @@ export function Taskbar() {
 
   useEffect(() => {
     const badges: Record<string, number> = {
-      chat: totalUnread,
+      clawgram: clawgramUnread,
+      whatsclaw: whatslawUnread,
       email: unreadEmails,
     };
     const newPopping = new Set<string>();
@@ -71,10 +73,11 @@ export function Taskbar() {
       const timer = setTimeout(() => setPoppingIds(new Set()), 300);
       return () => clearTimeout(timer);
     }
-  }, [totalUnread, unreadEmails]);
+  }, [clawgramUnread, whatslawUnread, unreadEmails]);
 
   function getBadge(toolId: string): number | undefined {
-    if (toolId === 'chat' && totalUnread > 0) return totalUnread;
+    if (toolId === 'clawgram' && clawgramUnread > 0) return clawgramUnread;
+    if (toolId === 'whatsclaw' && whatslawUnread > 0) return whatslawUnread;
     if (toolId === 'email' && unreadEmails > 0) return unreadEmails;
     return undefined;
   }

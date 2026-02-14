@@ -21,10 +21,16 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     shortcut: '2',
   },
   {
-    id: 'chat',
-    name: 'Chat',
-    description: 'Communicate with NPC users',
+    id: 'clawgram',
+    name: 'Clawgram',
+    description: 'Telegram-style messaging with NPC users',
     shortcut: '3',
+  },
+  {
+    id: 'whatsclaw',
+    name: 'Whatsclaw',
+    description: 'WhatsApp-style messaging with NPC users',
+    shortcut: '7',
   },
   {
     id: 'email',

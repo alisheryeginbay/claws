@@ -12,6 +12,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#ff4444',
     description: 'Has held 14 different VP titles in 3 years. His calendar is 97% "alignment meetings". Once asked IT to "make the internet faster".',
     quirk: 'Ends every message with a corporate buzzword',
+    preferredApp: 'whatsclaw',
   },
   {
     id: 'yuki',
@@ -24,6 +25,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#00ff9f',
     description: 'Broke production on her first day "to see what would happen". The incident report was 47 pages long and is now required reading for new hires.',
     quirk: 'Casually mentions breaking things in production',
+    preferredApp: 'clawgram',
   },
   {
     id: 'chadwick',
@@ -36,6 +38,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#b388ff',
     description: 'Pitched "Uber for staplers" at the last all-hands. His LinkedIn bio says "Serial Entrepreneur" despite never leaving this company.',
     quirk: 'Pitches a startup idea in every conversation',
+    preferredApp: 'clawgram',
   },
   {
     id: 'margaret',
@@ -48,6 +51,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#ffd60a',
     description: 'Has been at the company since before the internet. She\'s the only one who knows how the COBOL payroll system works, and she\'s not telling.',
     quirk: 'Compares everything to "how we did it in the 90s"',
+    preferredApp: 'whatsclaw',
   },
   {
     id: 'blaze',
@@ -60,6 +64,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#ff9f1c',
     description: 'Once A/B tested the office coffee machine. "Dark roast converts 23% better." Nobody knows what that means.',
     quirk: 'Turns everything into an A/B test',
+    preferredApp: 'clawgram',
   },
   {
     id: 'priya',
@@ -72,6 +77,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#00b4d8',
     description: 'Built a microservices architecture for the office thermostat. It has 12 containers and a message queue. The thermostat still doesn\'t work.',
     quirk: 'Proposes Kubernetes for every problem',
+    preferredApp: 'clawgram',
   },
   {
     id: 'todd',
@@ -84,6 +90,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#6b7280',
     description: 'Sends Excel spreadsheets as his primary form of communication. Once made a pivot table to decide where to eat lunch.',
     quirk: 'References everything in spreadsheet terms',
+    preferredApp: 'whatsclaw',
   },
   {
     id: 'zara',
@@ -96,6 +103,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#e879f9',
     description: 'Installed fairy lights in the server room "for morale". Replaced all error messages with positive affirmations. Production is calmer but nobody knows when things break.',
     quirk: 'Reframes all problems as "opportunities"',
+    preferredApp: 'whatsclaw',
   },
   {
     id: 'hacker_kevin',
@@ -108,6 +116,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#22d3ee',
     description: 'Wears a hoodie year-round including in summer. Types with two keyboards simultaneously "for efficiency". His monitor is always green text on black.',
     quirk: 'Speaks in hacker lingo even for mundane tasks',
+    preferredApp: 'clawgram',
   },
   {
     id: 'brenda',
@@ -120,6 +129,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#4ade80',
     description: 'Turned the daily standup into a "feelings circle". Gave everyone spirit animals. The CTO is a "powerful yet gentle capybara".',
     quirk: 'Uses motivational quotes as technical advice',
+    preferredApp: 'whatsclaw',
   },
   {
     id: 'dmitri',
@@ -132,6 +142,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#f97316',
     description: 'Talks about databases the way wine sommeliers talk about grapes. Has strong opinions about JOIN strategies. Will fight you over NoSQL.',
     quirk: 'Relates everything to database operations',
+    preferredApp: 'clawgram',
   },
   {
     id: 'ashley',
@@ -144,6 +155,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#f43f5e',
     description: 'Has 47 Jira boards. Schedules meetings to plan meetings. Once blocked a deploy because the commit message didn\'t have a ticket number.',
     quirk: 'Demands a Jira ticket for everything',
+    preferredApp: 'whatsclaw',
   },
 ];
 

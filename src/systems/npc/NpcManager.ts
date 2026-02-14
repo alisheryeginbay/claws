@@ -3,6 +3,46 @@ import { generateNpcMessage } from '@/services/ai';
 import type { NpcMood } from '@/types';
 import { EventBus } from '@/engine/EventBus';
 
+/** Trigger an NPC reply after the player sends a message */
+export function triggerNpcReply(npcId: string): void {
+  const state = useGameStore.getState();
+  const npc = state.npcs[npcId];
+  if (!npc || npc.mood === 'gone' || npc.isTyping) return;
+
+  // Find active request for context
+  const activeRequest = state.requests.find(
+    (r) => r.npcId === npcId && (r.status === 'active' || r.status === 'in_progress')
+  );
+
+  // Get recent messages for context
+  const conv = state.conversations[npcId];
+  const recentMessages = conv?.messages.slice(-6).map((m) =>
+    `${m.isFromPlayer ? 'Player' : 'NPC'}: ${m.text}`
+  );
+
+  // Show typing indicator
+  state.setNpcTyping(npcId, true);
+
+  const aiPromise = generateNpcMessage({
+    npcId,
+    messageType: 'reply',
+    mood: npc.mood,
+    patiencePercent: npc.patienceRemaining,
+    request: activeRequest,
+    recentMessages,
+  });
+  const typingDelay = new Promise<void>((resolve) =>
+    setTimeout(resolve, 600 + Math.random() * 800)
+  );
+
+  Promise.all([aiPromise, typingDelay]).then(([dialogue]) => {
+    const s = useGameStore.getState();
+    if (s.npcs[npcId]?.mood === 'gone') return;
+    s.setNpcTyping(npcId, false);
+    s.addMessage(npcId, dialogue, false, s.clock.tickCount);
+  });
+}
+
 // Minimum ticks between mood messages per NPC (~30s at normal speed)
 const MOOD_COOLDOWN_TICKS = 60;
 
@@ -25,7 +65,7 @@ export class NpcManager {
 
       // Patience decay: lower patience stat = faster decay
       const decayRate = (1 - persona.patience) * 2;
-      state.decayPatience(request.npcId, decayRate);
+      state.decayPatience(request.npcId, decayRate, state.clock.tickCount);
 
       // Mood-based random messages with typing indicator
       const updatedNpc = useGameStore.getState().npcs[request.npcId];
@@ -34,7 +74,6 @@ export class NpcManager {
       if (ticksSinceLastMsg >= MOOD_COOLDOWN_TICKS && this.shouldSendMessage(updatedNpc.mood, updatedNpc.patienceRemaining)) {
         this.lastMoodMessageTick[request.npcId] = state.clock.tickCount;
         const npcId = request.npcId;
-        const tick = state.clock.tickCount;
         const currentMood = updatedNpc.mood;
         const patiencePercent = updatedNpc.patienceRemaining;
 
@@ -56,7 +95,7 @@ export class NpcManager {
           // Guard: NPC may have left during async wait
           if (s.npcs[npcId]?.mood === 'gone') return;
           s.setNpcTyping(npcId, false);
-          s.addMessage(npcId, dialogue, false, tick);
+          s.addMessage(npcId, dialogue, false, s.clock.tickCount);
         });
       }
 

@@ -7,7 +7,8 @@ import type { ToolId } from '@/types';
 import {
   Terminal,
   FolderOpen,
-  MessageSquare,
+  Send,
+  Phone,
   Mail,
   Search,
   Calendar,
@@ -16,7 +17,8 @@ import {
 const TOOLS: { id: ToolId; icon: typeof Terminal; label: string }[] = [
   { id: 'terminal', icon: Terminal, label: 'Terminal' },
   { id: 'files', icon: FolderOpen, label: 'Files' },
-  { id: 'chat', icon: MessageSquare, label: 'Chat' },
+  { id: 'clawgram', icon: Send, label: 'Clawgram' },
+  { id: 'whatsclaw', icon: Phone, label: 'Whatsclaw' },
   { id: 'email', icon: Mail, label: 'Email' },
   { id: 'search', icon: Search, label: 'Search' },
   { id: 'calendar', icon: Calendar, label: 'Calendar' },
@@ -26,16 +28,17 @@ export function ActivityBar() {
   const activeTool = useGameStore((s) => s.tools.activeTool);
   const setActiveTool = useGameStore((s) => s.setActiveTool);
   const conversations = useGameStore((s) => s.conversations);
+  const selectedNpc = useGameStore((s) => s.selectedNpc);
   const emails = useGameStore((s) => s.emails);
 
-  const totalUnread = Object.values(conversations).reduce(
-    (sum, c) => sum + c.unreadCount,
-    0
-  );
+  const totalUnread = Object.values(conversations).reduce((sum, c) => sum + c.unreadCount, 0);
+  const clawgramUnread = selectedNpc?.preferredApp === 'clawgram' ? totalUnread : 0;
+  const whatslawUnread = selectedNpc?.preferredApp === 'whatsclaw' ? totalUnread : 0;
   const unreadEmails = emails.filter((e) => !e.isRead).length;
 
   function getBadge(toolId: ToolId): number | undefined {
-    if (toolId === 'chat' && totalUnread > 0) return totalUnread;
+    if (toolId === 'clawgram' && clawgramUnread > 0) return clawgramUnread;
+    if (toolId === 'whatsclaw' && whatslawUnread > 0) return whatslawUnread;
     if (toolId === 'email' && unreadEmails > 0) return unreadEmails;
     return undefined;
   }
@@ -46,7 +49,8 @@ export function ActivityBar() {
 
   useEffect(() => {
     const badges: Record<string, number> = {
-      chat: totalUnread,
+      clawgram: clawgramUnread,
+      whatsclaw: whatslawUnread,
       email: unreadEmails,
     };
     const newPopping = new Set<string>();
@@ -63,7 +67,7 @@ export function ActivityBar() {
       const timer = setTimeout(() => setPoppingIds(new Set()), 300);
       return () => clearTimeout(timer);
     }
-  }, [totalUnread, unreadEmails]);
+  }, [clawgramUnread, whatslawUnread, unreadEmails]);
 
   return (
     <div className="w-12 bg-claw-surface border-r border-claw-border flex flex-col items-center py-2 gap-1">

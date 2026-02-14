@@ -4,7 +4,8 @@ import type { ToolId, WindowId, WindowState } from '@/types';
 const WINDOW_DEFAULTS: Record<ToolId, { width: number; height: number; minWidth: number; minHeight: number; title: string; icon: string }> = {
   terminal: { width: 680, height: 440, minWidth: 400, minHeight: 300, title: 'Command Prompt', icon: 'command-prompt' },
   files: { width: 700, height: 500, minWidth: 400, minHeight: 300, title: 'My Computer', icon: 'my-computer' },
-  chat: { width: 420, height: 520, minWidth: 320, minHeight: 400, title: 'MSN Messenger', icon: 'msn-messenger' },
+  clawgram: { width: 520, height: 520, minWidth: 400, minHeight: 400, title: 'Clawgram', icon: 'clawgram' },
+  whatsclaw: { width: 520, height: 520, minWidth: 400, minHeight: 400, title: 'Whatsclaw', icon: 'whatsclaw' },
   email: { width: 700, height: 500, minWidth: 500, minHeight: 350, title: 'Outlook Express', icon: 'outlook-express' },
   search: { width: 700, height: 500, minWidth: 400, minHeight: 300, title: 'Internet Explorer', icon: 'internet-explorer-6' },
   calendar: { width: 600, height: 500, minWidth: 400, minHeight: 350, title: 'Calendar', icon: 'date-and-time' },
