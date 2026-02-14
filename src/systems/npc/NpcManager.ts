@@ -1,6 +1,6 @@
 import { useGameStore } from '@/store/gameStore';
 import { generateNpcMessage } from '@/services/ai';
-import type { NpcMood } from '@/types';
+import type { NpcMood, GameRequest } from '@/types';
 import { EventBus } from '@/engine/EventBus';
 
 /** Trigger an NPC reply after the player sends a message */
@@ -43,12 +43,12 @@ export function triggerNpcReply(npcId: string): void {
   });
 }
 
-// Minimum ticks between mood messages per NPC (~30s at normal speed)
-const MOOD_COOLDOWN_TICKS = 60;
+// Short delay before NPC introduces a new request (~5s at normal speed)
+const INITIAL_DELAY_TICKS = 10;
+// Follow-up interval when player hasn't replied (~20s at normal speed)
+const CHECKIN_INTERVAL_TICKS = 40;
 
 export class NpcManager {
-  private lastMoodMessageTick: Record<string, number> = {};
-
   // Decay patience for the active NPC when they have requests
   tickAll(): void {
     const state = useGameStore.getState();
@@ -59,59 +59,80 @@ export class NpcManager {
       (r) => r.status === 'active' || r.status === 'in_progress'
     );
 
+    // Decay patience for all active requests (deadlines still tick)
     for (const request of activeRequests) {
       const npc = state.npcs[request.npcId];
       if (!npc || npc.mood === 'gone') continue;
 
-      // Patience decay: lower patience stat = faster decay
       const decayRate = (1 - persona.patience) * 2;
       state.decayPatience(request.npcId, decayRate, state.clock.tickCount);
 
-      // Mood-based random messages with typing indicator
       const updatedNpc = useGameStore.getState().npcs[request.npcId];
-      if (!updatedNpc) continue;
-      const ticksSinceLastMsg = state.clock.tickCount - (this.lastMoodMessageTick[request.npcId] ?? -MOOD_COOLDOWN_TICKS);
-      if (ticksSinceLastMsg >= MOOD_COOLDOWN_TICKS && this.shouldSendMessage(updatedNpc.mood, updatedNpc.patienceRemaining)) {
-        this.lastMoodMessageTick[request.npcId] = state.clock.tickCount;
-        const npcId = request.npcId;
-        const currentMood = updatedNpc.mood;
-        const patiencePercent = updatedNpc.patienceRemaining;
-
-        // Show typing indicator, then deliver AI message
-        state.setNpcTyping(npcId, true);
-
-        const aiPromise = generateNpcMessage({
-          npcId,
-          messageType: 'mood',
-          mood: currentMood,
-          patiencePercent,
-        });
-        const typingDelay = new Promise<void>((resolve) =>
-          setTimeout(resolve, 800 + Math.random() * 600)
-        );
-
-        Promise.all([aiPromise, typingDelay]).then(([dialogue]) => {
-          const s = useGameStore.getState();
-          // Guard: NPC may have left during async wait
-          if (s.npcs[npcId]?.mood === 'gone') return;
-          s.setNpcTyping(npcId, false);
-          s.addMessage(npcId, dialogue, false, s.clock.tickCount);
-        });
-      }
-
-      // Handle NPC leaving
-      if (updatedNpc.mood === 'gone') {
+      if (updatedNpc?.mood === 'gone') {
         EventBus.emit('npc_left', { npcId: request.npcId, requestId: request.id });
+      }
+    }
+
+    // Check-in messaging: focus on ONE request only (the first active)
+    const focusRequest = activeRequests[0];
+    if (!focusRequest) return;
+
+    const npcId = focusRequest.npcId;
+    const npc = state.npcs[npcId];
+    if (!npc || npc.mood === 'gone' || npc.isTyping) return;
+
+    const conv = state.conversations[npcId];
+    const msgs = conv?.messages;
+    const lastMsg = msgs?.[msgs.length - 1];
+
+    // Has the NPC sent any chat message about this request?
+    const npcHasMessaged = msgs?.some(
+      m => !m.isFromPlayer && !m.isSystem && m.timestamp >= focusRequest.arrivalTick
+    );
+
+    if (!npcHasMessaged) {
+      // NPC hasn't introduced this request yet — send initial message after short delay
+      const ticksSinceRequest = state.clock.tickCount - focusRequest.arrivalTick;
+      if (ticksSinceRequest >= INITIAL_DELAY_TICKS) {
+        this.sendCheckin(npcId, npc.mood, npc.patienceRemaining, focusRequest);
+      }
+    } else if (lastMsg && !lastMsg.isFromPlayer && !lastMsg.isSystem) {
+      // Standard turn-based: NPC sent last message, waiting for player reply
+      const ticksSinceLastMsg = state.clock.tickCount - lastMsg.timestamp;
+      if (ticksSinceLastMsg >= CHECKIN_INTERVAL_TICKS) {
+        this.sendCheckin(npcId, npc.mood, npc.patienceRemaining, focusRequest);
       }
     }
   }
 
-  private shouldSendMessage(mood: NpcMood, _patience: number): boolean {
-    const chance = mood === 'angry' ? 0.08 :
-                   mood === 'frustrated' ? 0.04 :
-                   mood === 'waiting' ? 0.02 :
-                   0;
-    return Math.random() < chance;
+  private sendCheckin(npcId: string, mood: NpcMood, patiencePercent: number, request: GameRequest): void {
+    const state = useGameStore.getState();
+    state.setNpcTyping(npcId, true);
+
+    // Pass recent messages so check-in can reference the conversation
+    const conv = state.conversations[npcId];
+    const recentMessages = conv?.messages.slice(-6).map((m) =>
+      `${m.isFromPlayer ? 'Player' : 'NPC'}: ${m.text}`
+    );
+
+    const aiPromise = generateNpcMessage({
+      npcId,
+      messageType: 'mood',
+      mood,
+      patiencePercent,
+      request,
+      recentMessages,
+    });
+    const typingDelay = new Promise<void>((resolve) =>
+      setTimeout(resolve, 800 + Math.random() * 600)
+    );
+
+    Promise.all([aiPromise, typingDelay]).then(([dialogue]) => {
+      const s = useGameStore.getState();
+      if (s.npcs[npcId]?.mood === 'gone') return;
+      s.setNpcTyping(npcId, false);
+      s.addMessage(npcId, dialogue, false, s.clock.tickCount);
+    });
   }
 
   resetMood(npcId: string): void {

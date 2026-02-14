@@ -1,11 +1,51 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { cn } from '@/lib/utils';
-import type { NpcMood } from '@/types';
+import type { NpcMood, ChatMessage } from '@/types';
 import { Send, CheckCheck, Lock } from 'lucide-react';
 import { triggerNpcReply } from '@/systems/npc/NpcManager';
+
+type MessagePosition = 'solo' | 'first' | 'middle' | 'last';
+
+interface GroupedMessage {
+  message: ChatMessage;
+  position: MessagePosition;
+  showTimestamp: boolean;
+  showTail: boolean;
+}
+
+const TIME_GAP_MS = 5 * 60 * 1000;
+
+function getMessageGroups(messages: ChatMessage[]): GroupedMessage[] {
+  return messages.map((msg, i) => {
+    if (msg.isSystem) {
+      return { message: msg, position: 'solo' as const, showTimestamp: false, showTail: false };
+    }
+    const prev = i > 0 ? messages[i - 1] : null;
+    const next = i < messages.length - 1 ? messages[i + 1] : null;
+
+    const sameSenderAsPrev = prev && !prev.isSystem
+      && prev.isFromPlayer === msg.isFromPlayer
+      && (msg.createdAt - prev.createdAt) < TIME_GAP_MS;
+    const sameSenderAsNext = next && !next.isSystem
+      && next.isFromPlayer === msg.isFromPlayer
+      && (next.createdAt - msg.createdAt) < TIME_GAP_MS;
+
+    const position: MessagePosition =
+      !sameSenderAsPrev && !sameSenderAsNext ? 'solo' :
+      !sameSenderAsPrev ? 'first' :
+      !sameSenderAsNext ? 'last' : 'middle';
+
+    return {
+      message: msg,
+      position,
+      showTail: position === 'first' || position === 'solo',
+      showTimestamp: position === 'last' || position === 'solo',
+    };
+  });
+}
 
 const MOOD_LABELS: Record<NpcMood, string> = {
   neutral: 'online',
@@ -63,6 +103,10 @@ export function Whatsclaw() {
   };
 
   const lastMessage = activeConv?.messages[activeConv.messages.length - 1];
+  const groupedMessages = useMemo(
+    () => getMessageGroups(activeConv?.messages ?? []),
+    [activeConv?.messages]
+  );
 
   return (
     <div className="h-full flex overflow-hidden bg-white" style={{ fontFamily: 'var(--font-xp)' }}>
@@ -153,7 +197,7 @@ export function Whatsclaw() {
             {/* Messages area - WhatsApp wallpaper */}
             <div
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-3 space-y-1.5"
+              className="flex-1 overflow-y-auto p-3"
               style={{
                 backgroundColor: '#ECE5DD',
                 backgroundImage: `
@@ -171,14 +215,19 @@ export function Whatsclaw() {
                 </span>
               </div>
 
-              {activeConv && activeConv.messages.length > 0 ? (
-                activeConv.messages.map((msg) => (
+              {groupedMessages.length > 0 ? (
+                groupedMessages.map(({ message: msg, position, showTimestamp, showTail }, idx) => (
                   <div
                     key={msg.id}
                     className={cn(
                       'max-w-[80%]',
                       msg.isFromPlayer ? 'ml-auto' : 'mr-auto'
                     )}
+                    style={{
+                      marginTop: idx === 0 ? 0
+                        : (position === 'first' || position === 'solo') ? 8
+                        : 2,
+                    }}
                   >
                     {msg.isSystem ? (
                       <div className="text-center">
@@ -190,27 +239,25 @@ export function Whatsclaw() {
                       <div
                         className={cn(
                           'px-2 py-1.5 text-xs rounded-lg relative',
+                          msg.isFromPlayer ? 'bg-[#DCF8C6]' : 'bg-white',
                           msg.isFromPlayer
-                            ? 'bg-[#DCF8C6] rounded-tr-none'
-                            : 'bg-white rounded-tl-none'
+                            ? showTail && 'rounded-tr-none'
+                            : showTail && 'rounded-tl-none'
                         )}
                         style={{ boxShadow: '0 1px 0.5px rgba(0,0,0,0.13)' }}
                       >
-                        {!msg.isFromPlayer && selectedNpc && (
-                          <div className="text-[10px] font-bold mb-0.5" style={{ color: selectedNpc.color }}>
-                            {selectedNpc.name}
+                        <div className="whitespace-pre-wrap text-[#111B21]">{msg.text}</div>
+                        {showTimestamp && (
+                          <div className="flex items-center justify-end gap-1 mt-0.5">
+                            <span className="text-[8px] text-[#667781]">
+                              {String(new Date(msg.createdAt).getHours()).padStart(2, '0')}:
+                              {String(new Date(msg.createdAt).getMinutes()).padStart(2, '0')}
+                            </span>
+                            {msg.isFromPlayer && (
+                              <CheckCheck size={10} className="text-[#53BDEB]" />
+                            )}
                           </div>
                         )}
-                        <div className="whitespace-pre-wrap text-[#111B21]">{msg.text}</div>
-                        <div className="flex items-center justify-end gap-1 mt-0.5">
-                          <span className="text-[8px] text-[#667781]">
-                            {String(new Date(msg.createdAt).getHours()).padStart(2, '0')}:
-                            {String(new Date(msg.createdAt).getMinutes()).padStart(2, '0')}
-                          </span>
-                          {msg.isFromPlayer && (
-                            <CheckCheck size={10} className="text-[#53BDEB]" />
-                          )}
-                        </div>
                       </div>
                     )}
                   </div>
@@ -225,14 +272,9 @@ export function Whatsclaw() {
 
               {/* Typing indicator */}
               {npcId && activeNpcState?.isTyping && (
-                <div className="mr-auto max-w-[80%]">
+                <div className="mr-auto max-w-[80%]" style={{ marginTop: 8 }}>
                   <div className="px-2 py-1.5 text-xs rounded-lg rounded-tl-none bg-white"
                     style={{ boxShadow: '0 1px 0.5px rgba(0,0,0,0.13)' }}>
-                    {selectedNpc && (
-                      <div className="text-[10px] font-bold mb-0.5" style={{ color: selectedNpc.color }}>
-                        {selectedNpc.name}
-                      </div>
-                    )}
                     <div className="flex gap-1 items-center h-4">
                       <span className="typing-bounce-1 w-1.5 h-1.5 rounded-full bg-[#667781] inline-block" />
                       <span className="typing-bounce-2 w-1.5 h-1.5 rounded-full bg-[#667781] inline-block" />

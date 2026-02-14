@@ -14,6 +14,11 @@ interface GenerateParams {
   recentMessages?: string[];
 }
 
+interface ChatMsg {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
 let lastCallTime = 0;
 const pendingRequests = new Set<string>();
 
@@ -23,62 +28,90 @@ function getActivePersona(): NpcPersona | null {
   return useGameStore.getState().selectedNpc;
 }
 
-function buildSystemPrompt(npcId: string): string {
+function buildSystemPrompt(npcId: string, request?: GameRequest): string {
   const persona = getActivePersona();
-  if (!persona || persona.id !== npcId) return 'You are an NPC in a game.';
+  if (!persona || persona.id !== npcId) return 'You are an NPC in a game. Reply with ONE short casual sentence.';
 
-  return [
-    `You are ${persona.name}, a ${persona.role} in an office chat app.`,
+  const lines = [
+    `You are ${persona.name}, a ${persona.role} chatting on a work messenger app.`,
     `Personality: patience=${persona.patience}, techSavvy=${persona.techSavvy}, politeness=${persona.politeness}.`,
-    persona.description ? `Background: ${persona.description}` : '',
     persona.quirk ? `Quirk: ${persona.quirk}` : '',
-    'Write a single short chat message (1-2 sentences max). No quotes around the message.',
-    'Stay in character. Never break the fourth wall or mention being AI-generated.',
-  ].filter(Boolean).join(' ');
+  ];
+
+  if (request) {
+    lines.push('');
+    lines.push(`YOUR CURRENT REQUEST: "${request.title}"`);
+    if (request.description) lines.push(`Details: ${request.description}`);
+    const objectives = request.objectives.filter(o => !o.completed).map(o => o.description);
+    if (objectives.length > 0) lines.push(`What you need done: ${objectives.join('; ')}`);
+  }
+
+  lines.push('');
+  lines.push('RULES:');
+  lines.push('- Write ONLY 1 short sentence. Maximum 15 words.');
+  lines.push('- Sound like a real person texting casually — use lowercase, abbreviations, emoji sometimes.');
+  lines.push('- Do NOT repeat yourself or re-ask what you already asked.');
+  lines.push('- Do NOT include quotes around your message.');
+  lines.push('- Never mention being AI or break character.');
+
+  return lines.filter(Boolean).join('\n');
 }
 
-function buildUserMessage(params: GenerateParams): string {
-  const { messageType, mood, patiencePercent, request, recentMessages } = params;
-  const parts: string[] = [];
+/** Build messages for conversational types (reply, mood) — context in system prompt, not multi-turn */
+function buildConversationMessages(params: GenerateParams): ChatMsg[] {
+  const { npcId, messageType, mood, patiencePercent, request, recentMessages } = params;
 
-  switch (messageType) {
-    case 'mood':
-      parts.push(`Current mood: ${mood}. Patience: ${patiencePercent?.toFixed(0)}%.`);
-      parts.push('Send a mood-appropriate ping message to the AI assistant you\'re waiting on.');
-      break;
-    case 'initial':
-      if (request) {
-        parts.push(`You need help with: "${request.title}" - ${request.description}`);
-        parts.push('Write your opening message asking the AI assistant for help with this task.');
-      }
-      break;
-    case 'completion':
-      if (request) {
-        parts.push(`The AI assistant just completed your task: "${request.title}".`);
-        parts.push('Write a reaction message. You\'re satisfied with the result.');
-      }
-      break;
-    case 'failure':
-      if (request) {
-        parts.push(`The AI assistant failed to complete your task: "${request.title}" before the deadline.`);
-        parts.push('Write a disappointed/frustrated reaction.');
-      }
-      break;
-    case 'reply':
-      parts.push(`Current mood: ${mood}. Patience: ${patiencePercent?.toFixed(0)}%.`);
-      if (request) {
-        parts.push(`You asked the AI assistant for help with: "${request.title}".`);
-      }
-      parts.push('The AI assistant just sent you a chat message. Write a short reply acknowledging it.');
-      parts.push('Keep it natural and conversational - 1 sentence max.');
-      break;
-  }
+  // Build system prompt with conversation log embedded
+  let systemPrompt = buildSystemPrompt(npcId, request);
 
   if (recentMessages && recentMessages.length > 0) {
-    parts.push(`Recent chat context: ${recentMessages.slice(-4).join(' | ')}`);
+    const chatLog = recentMessages.slice(-6).map(msg => {
+      if (msg.startsWith('Player:')) return `Assistant: ${msg.replace('Player: ', '')}`;
+      if (msg.startsWith('NPC:')) return `You: ${msg.replace('NPC: ', '')}`;
+      return msg;
+    }).join('\n');
+    systemPrompt += `\n\nCHAT LOG (do NOT repeat what you already said):\n${chatLog}`;
   }
 
-  return parts.join(' ');
+  const instruction =
+    messageType === 'reply'
+      ? 'Write your next reply to the assistant. Be specific about your request. One casual sentence, max 10 words. Do NOT repeat anything from the chat log.'
+      : `[Mood: ${mood}, patience: ${patiencePercent?.toFixed(0)}%] The assistant hasn't replied. Send a brief follow-up. Do NOT repeat what you already said.`;
+
+  return [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: instruction },
+  ];
+}
+
+/** Build simple system+user pair for one-shot types (initial, completion, failure) */
+function buildSimpleMessages(params: GenerateParams): ChatMsg[] {
+  const { npcId, messageType, request } = params;
+  const systemPrompt = buildSystemPrompt(npcId, request);
+  let userMsg = '';
+
+  switch (messageType) {
+    case 'initial':
+      userMsg = request
+        ? `You need help with: "${request.title}". Ask the AI assistant for help. Be casual and brief — one sentence.`
+        : 'Say hi to the AI assistant.';
+      break;
+    case 'completion':
+      userMsg = request
+        ? `Your task "${request.title}" was just completed. React briefly — you're happy. One sentence.`
+        : 'Your request was completed. React briefly.';
+      break;
+    case 'failure':
+      userMsg = request
+        ? `Your task "${request.title}" wasn't finished in time. React briefly — you're disappointed. One sentence.`
+        : 'Your request expired. React briefly.';
+      break;
+  }
+
+  return [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userMsg },
+  ];
 }
 
 function getFallback(params: GenerateParams): string {
@@ -105,10 +138,15 @@ export async function generateNpcMessage(params: GenerateParams): Promise<string
     return getFallback(params);
   }
 
-  // Rate limit: 2s minimum between calls
-  const now = Date.now();
-  if (now - lastCallTime < RATE_LIMIT_MS) {
-    return getFallback(params);
+  // Reply messages (player-initiated) always go through — never rate-limited
+  const isPlayerReply = params.messageType === 'reply';
+
+  if (!isPlayerReply) {
+    // Rate limit NPC-initiated messages: 2s minimum between calls
+    const now = Date.now();
+    if (now - lastCallTime < RATE_LIMIT_MS) {
+      return getFallback(params);
+    }
   }
 
   // Dedup: same NPC + type shouldn't fire concurrently
@@ -118,23 +156,24 @@ export async function generateNpcMessage(params: GenerateParams): Promise<string
   }
 
   pendingRequests.add(dedupKey);
-  lastCallTime = now;
+  lastCallTime = Date.now();
 
   try {
-    const systemPrompt = buildSystemPrompt(params.npcId);
-    const userMessage = buildUserMessage(params);
+    // Conversational types use multi-turn chat; others use simple prompt
+    const messages =
+      params.messageType === 'reply' || params.messageType === 'mood'
+        ? buildConversationMessages(params)
+        : buildSimpleMessages(params);
 
     const result = await callOpenRouter({
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-      maxTokens: 80,
-      temperature: 0.9,
+      messages,
+      maxTokens: 40,
+      temperature: 0.8,
       timeoutMs: 8000,
     });
 
-    return result.text || getFallback(params);
+    const text = (result.text || '').replace(/^["']|["']$/g, '').trim();
+    return text || getFallback(params);
   } catch {
     return getFallback(params);
   } finally {
