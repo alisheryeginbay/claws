@@ -25,7 +25,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#00ff9f',
     description: 'Speaks in code and git commands. Thinks meetings are a bug in the system.',
     quirk: 'Uses tech jargon for everything, even emotions',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   karen: {
     id: 'karen',
@@ -51,7 +51,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#ffd60a',
     description: 'Eager intern who asks adorable questions. Just happy to be here.',
     quirk: 'Apologizes for asking questions, then asks more',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   raj: {
     id: 'raj',
@@ -64,7 +64,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#b388ff',
     description: 'Lives in the terminal. Gets paged at 3 AM so often he sleeps in the server room.',
     quirk: 'Checks monitoring dashboards mid-conversation',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   luna: {
     id: 'luna',
@@ -90,7 +90,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
     color: '#6b7280',
     description: 'Nobody knows who this is or how they got access. Probably fine.',
     quirk: 'Speaks in cryptic half-sentences',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   drchen: {
     id: 'drchen',

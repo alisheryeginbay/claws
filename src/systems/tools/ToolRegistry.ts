@@ -21,8 +21,8 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     shortcut: '2',
   },
   {
-    id: 'clawgram',
-    name: 'Clawgram',
+    id: 'teleclaw',
+    name: 'Teleclaw',
     description: 'Telegram-style messaging with NPC users',
     shortcut: '3',
   },

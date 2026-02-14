@@ -48,7 +48,7 @@ function validateNpc(raw: RawNpc, index: number): NpcPersona | null {
     color: typeof raw.color === 'string' && raw.color.startsWith('#') ? raw.color : '#00b4d8',
     description: typeof raw.description === 'string' ? raw.description.trim() : `${name} works as ${role}.`,
     quirk: typeof raw.quirk === 'string' ? raw.quirk.trim() : 'Has no particular quirks',
-    preferredApp: (Math.random() > 0.5 ? 'clawgram' : 'whatsclaw') as MessengerApp,
+    preferredApp: (Math.random() > 0.5 ? 'teleclaw' : 'whatsclaw') as MessengerApp,
   };
 }
 

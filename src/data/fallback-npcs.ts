@@ -25,7 +25,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#00ff9f',
     description: 'Broke production on her first day "to see what would happen". The incident report was 47 pages long and is now required reading for new hires.',
     quirk: 'Casually mentions breaking things in production',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   {
     id: 'chadwick',
@@ -38,7 +38,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#b388ff',
     description: 'Pitched "Uber for staplers" at the last all-hands. His LinkedIn bio says "Serial Entrepreneur" despite never leaving this company.',
     quirk: 'Pitches a startup idea in every conversation',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   {
     id: 'margaret',
@@ -64,7 +64,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#ff9f1c',
     description: 'Once A/B tested the office coffee machine. "Dark roast converts 23% better." Nobody knows what that means.',
     quirk: 'Turns everything into an A/B test',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   {
     id: 'priya',
@@ -77,7 +77,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#00b4d8',
     description: 'Built a microservices architecture for the office thermostat. It has 12 containers and a message queue. The thermostat still doesn\'t work.',
     quirk: 'Proposes Kubernetes for every problem',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   {
     id: 'todd',
@@ -116,7 +116,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#22d3ee',
     description: 'Wears a hoodie year-round including in summer. Types with two keyboards simultaneously "for efficiency". His monitor is always green text on black.',
     quirk: 'Speaks in hacker lingo even for mundane tasks',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   {
     id: 'brenda',
@@ -142,7 +142,7 @@ export const FALLBACK_NPCS: NpcPersona[] = [
     color: '#f97316',
     description: 'Talks about databases the way wine sommeliers talk about grapes. Has strong opinions about JOIN strategies. Will fight you over NoSQL.',
     quirk: 'Relates everything to database operations',
-    preferredApp: 'clawgram',
+    preferredApp: 'teleclaw',
   },
   {
     id: 'ashley',
