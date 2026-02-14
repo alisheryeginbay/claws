@@ -4,7 +4,7 @@ import type { ToolId, WindowId, WindowState } from '@/types';
 const WINDOW_DEFAULTS: Record<ToolId, { width: number; height: number; minWidth: number; minHeight: number; title: string; icon: string }> = {
   terminal: { width: 680, height: 440, minWidth: 400, minHeight: 300, title: 'Command Prompt', icon: 'command-prompt' },
   files: { width: 700, height: 500, minWidth: 400, minHeight: 300, title: 'My Computer', icon: 'my-computer' },
-  clawgram: { width: 520, height: 520, minWidth: 400, minHeight: 400, title: 'Clawgram', icon: 'clawgram' },
+  teleclaw: { width: 520, height: 520, minWidth: 400, minHeight: 400, title: 'Teleclaw', icon: 'teleclaw' },
   whatsclaw: { width: 520, height: 520, minWidth: 400, minHeight: 400, title: 'Whatsclaw', icon: 'whatsclaw' },
   email: { width: 700, height: 500, minWidth: 500, minHeight: 350, title: 'Outlook Express', icon: 'outlook-express' },
   search: { width: 700, height: 500, minWidth: 400, minHeight: 300, title: 'Internet Explorer', icon: 'internet-explorer-6' },
@@ -52,6 +52,25 @@ export const createWindowSlice: StateCreator<WindowSlice> = (set, get) => ({
 
   openWindow: (toolId) => {
     const state = get();
+
+    // Block opening the wrong messenger app
+    if (toolId === 'teleclaw' || toolId === 'whatsclaw') {
+      const store = state as unknown as {
+        selectedNpc?: { preferredApp: string; name: string };
+        addNotification?: (n: { type: string; title: string; message: string }) => void;
+      };
+      if (store.selectedNpc && toolId !== store.selectedNpc.preferredApp) {
+        const correctApp = store.selectedNpc.preferredApp === 'teleclaw' ? 'Teleclaw' : 'Whatsclaw';
+        const wrongApp = toolId === 'teleclaw' ? 'Teleclaw' : 'Whatsclaw';
+        store.addNotification?.({
+          type: 'error',
+          title: wrongApp,
+          message: `${store.selectedNpc.name} doesn't use this app. Try ${correctApp} instead.`,
+        });
+        return;
+      }
+    }
+
     // If window for this tool already exists, focus/restore it
     const existing = Object.values(state.windows).find((w) => w.toolId === toolId);
     if (existing) {

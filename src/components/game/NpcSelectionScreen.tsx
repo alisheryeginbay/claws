@@ -86,10 +86,18 @@ export function NpcSelectionScreen({ candidates, isGenerated, onSelect }: NpcSel
                     {npc.name}
                   </div>
                   <div
-                    className="text-white/50 text-xs mt-0.5 truncate"
+                    className="text-white/50 text-xs mt-0.5 truncate flex items-center gap-1.5"
                     style={{ textShadow: '1px 1px 1px rgba(0,0,0,0.3)' }}
                   >
-                    {npc.role}
+                    <span>{npc.role}</span>
+                    <Image
+                      src={getIconPath(npc.preferredApp, 48)}
+                      alt={npc.preferredApp}
+                      width={24}
+                      height={24}
+                      className="inline-block opacity-80"
+                      draggable={false}
+                    />
                   </div>
                 </div>
               </button>

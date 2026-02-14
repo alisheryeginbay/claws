@@ -9,7 +9,7 @@ import { NotificationTray } from './NotificationTray';
 import { RequestsWidget } from './RequestsWidget';
 import { Terminal } from '@/components/tools/Terminal';
 import { FileBrowser } from '@/components/tools/FileBrowser';
-import { Clawgram } from '@/components/tools/Clawgram';
+import { Teleclaw } from '@/components/tools/Teleclaw';
 import { Whatsclaw } from '@/components/tools/Whatsclaw';
 import { EmailClient } from '@/components/tools/EmailClient';
 import { WebSearch } from '@/components/tools/WebSearch';
@@ -22,7 +22,7 @@ import type { ToolId } from '@/types';
 const TOOL_COMPONENTS: Record<ToolId, React.ComponentType> = {
   terminal: Terminal,
   files: FileBrowser,
-  clawgram: Clawgram,
+  teleclaw: Teleclaw,
   whatsclaw: Whatsclaw,
   email: EmailClient,
   search: WebSearch,
@@ -65,7 +65,7 @@ export function Desktop() {
     const toolMap: Record<string, ToolId> = {
       '1': 'terminal',
       '2': 'files',
-      '3': 'clawgram',
+      '3': 'teleclaw',
       '4': 'email',
       '5': 'search',
       '6': 'calendar',

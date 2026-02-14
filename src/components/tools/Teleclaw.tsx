@@ -30,7 +30,7 @@ function formatLastSeen(goneAtTick: number | undefined, currentTick: number): st
   return `last seen ${days} days ago`;
 }
 
-export function Clawgram() {
+export function Teleclaw() {
   const [replyText, setReplyText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -286,7 +286,7 @@ export function Clawgram() {
               <div className="w-[80px] h-[80px] rounded-full bg-white/15 flex items-center justify-center mx-auto mb-3">
                 <Send size={32} className="text-white/50" />
               </div>
-              <div className="text-white/80 text-sm font-light">Clawgram Desktop</div>
+              <div className="text-white/80 text-sm font-light">Teleclaw Desktop</div>
               <div className="text-white/50 text-[10px] mt-1">
                 Select a chat to start messaging
               </div>

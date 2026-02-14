@@ -9,7 +9,7 @@ import type { ToolId } from '@/types';
 const PROGRAMS: { toolId: ToolId; label: string; icon: string }[] = [
   { toolId: 'terminal', label: 'Command Prompt', icon: 'command-prompt' },
   { toolId: 'files', label: 'My Computer', icon: 'my-computer' },
-  { toolId: 'clawgram', label: 'Clawgram', icon: 'clawgram' },
+  { toolId: 'teleclaw', label: 'Teleclaw', icon: 'teleclaw' },
   { toolId: 'whatsclaw', label: 'Whatsclaw', icon: 'whatsclaw' },
   { toolId: 'email', label: 'Outlook Express', icon: 'outlook-express' },
   { toolId: 'search', label: 'Internet Explorer', icon: 'internet-explorer-6' },

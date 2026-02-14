@@ -17,7 +17,7 @@ import {
 const TOOLS: { id: ToolId; icon: typeof Terminal; label: string }[] = [
   { id: 'terminal', icon: Terminal, label: 'Terminal' },
   { id: 'files', icon: FolderOpen, label: 'Files' },
-  { id: 'clawgram', icon: Send, label: 'Clawgram' },
+  { id: 'teleclaw', icon: Send, label: 'Teleclaw' },
   { id: 'whatsclaw', icon: Phone, label: 'Whatsclaw' },
   { id: 'email', icon: Mail, label: 'Email' },
   { id: 'search', icon: Search, label: 'Search' },
@@ -32,12 +32,12 @@ export function ActivityBar() {
   const emails = useGameStore((s) => s.emails);
 
   const totalUnread = Object.values(conversations).reduce((sum, c) => sum + c.unreadCount, 0);
-  const clawgramUnread = selectedNpc?.preferredApp === 'clawgram' ? totalUnread : 0;
+  const teleclawUnread = selectedNpc?.preferredApp === 'teleclaw' ? totalUnread : 0;
   const whatslawUnread = selectedNpc?.preferredApp === 'whatsclaw' ? totalUnread : 0;
   const unreadEmails = emails.filter((e) => !e.isRead).length;
 
   function getBadge(toolId: ToolId): number | undefined {
-    if (toolId === 'clawgram' && clawgramUnread > 0) return clawgramUnread;
+    if (toolId === 'teleclaw' && teleclawUnread > 0) return teleclawUnread;
     if (toolId === 'whatsclaw' && whatslawUnread > 0) return whatslawUnread;
     if (toolId === 'email' && unreadEmails > 0) return unreadEmails;
     return undefined;
@@ -49,7 +49,7 @@ export function ActivityBar() {
 
   useEffect(() => {
     const badges: Record<string, number> = {
-      clawgram: clawgramUnread,
+      teleclaw: teleclawUnread,
       whatsclaw: whatslawUnread,
       email: unreadEmails,
     };
@@ -67,7 +67,7 @@ export function ActivityBar() {
       const timer = setTimeout(() => setPoppingIds(new Set()), 300);
       return () => clearTimeout(timer);
     }
-  }, [clawgramUnread, whatslawUnread, unreadEmails]);
+  }, [teleclawUnread, whatslawUnread, unreadEmails]);
 
   return (
     <div className="w-12 bg-claw-surface border-r border-claw-border flex flex-col items-center py-2 gap-1">
