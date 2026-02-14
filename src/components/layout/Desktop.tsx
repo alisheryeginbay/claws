@@ -99,13 +99,12 @@ export function Desktop() {
 
       {/* Floating Windows */}
       {Object.values(windows)
-        .filter((w) => !w.isMinimized)
         .sort((a, b) => a.zIndex - b.zIndex)
         .map((win) => {
           const ToolComponent = TOOL_COMPONENTS[win.toolId];
-          const isFocused = windowOrder[windowOrder.length - 1] === win.id;
+          const isFocused = windowOrder[windowOrder.length - 1] === win.id && !win.isMinimized;
           return (
-            <XPWindow key={win.id} windowState={win} isFocused={isFocused}>
+            <XPWindow key={win.id} windowState={win} isFocused={isFocused} hidden={win.isMinimized}>
               <div className="h-full flex flex-col">
                 <ToolComponent />
               </div>

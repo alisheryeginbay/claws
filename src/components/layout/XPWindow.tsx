@@ -10,10 +10,11 @@ import type { WindowState } from '@/types';
 interface XPWindowProps {
   windowState: WindowState;
   isFocused: boolean;
+  hidden?: boolean;
   children: ReactNode;
 }
 
-export function XPWindow({ windowState, isFocused, children }: XPWindowProps) {
+export function XPWindow({ windowState, isFocused, hidden, children }: XPWindowProps) {
   const focusWindow = useGameStore((s) => s.focusWindow);
   const minimizeWindow = useGameStore((s) => s.minimizeWindow);
   const maximizeWindow = useGameStore((s) => s.maximizeWindow);
@@ -165,13 +166,14 @@ export function XPWindow({ windowState, isFocused, children }: XPWindowProps) {
   return (
     <div
       ref={windowRef}
-      className="absolute flex flex-col xp-window xp-window-in"
+      className="absolute flex flex-col xp-window"
       style={{
         left: windowState.position.x,
         top: windowState.position.y,
         width: windowState.size.width,
         height: windowState.size.height,
         zIndex: windowState.zIndex,
+        display: hidden ? 'none' : undefined,
       }}
       onMouseDown={handleMouseDown}
     >

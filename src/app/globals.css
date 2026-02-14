@@ -457,24 +457,7 @@ body {
   animation: typewriter 0.5s steps(30) forwards;
 }
 
-/* XP window entrance */
-@keyframes xp-window-in {
-  0% { transform: scale(0.92); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
 
-.xp-window-in {
-  animation: xp-window-in 0.2s ease-out forwards;
-}
-
-/* Keep aliases */
-.hud-panel-in {
-  animation: xp-window-in 0.2s ease-out forwards;
-}
-
-.crt-on {
-  animation: xp-window-in 0.2s ease-out forwards;
-}
 
 /* Screen shake */
 @keyframes screen-shake {
