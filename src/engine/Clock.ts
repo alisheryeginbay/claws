@@ -13,15 +13,19 @@ export class Clock {
     return useGameStore.getState().clock.minute;
   }
 
+  get second(): number {
+    return useGameStore.getState().clock.second;
+  }
+
   get day(): number {
     return useGameStore.getState().clock.day;
   }
 
   get timeString(): string {
-    const { hour, minute } = useGameStore.getState().clock;
+    const { hour, minute, second } = useGameStore.getState().clock;
     const period = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+    return `${displayHour}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')} ${period}`;
   }
 
   advance(): void {

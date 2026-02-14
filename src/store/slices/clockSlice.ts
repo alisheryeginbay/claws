@@ -13,24 +13,29 @@ export const createClockSlice: StateCreator<ClockSlice> = (set) => ({
     tickCount: 0,
     hour: 9,
     minute: 0,
+    second: 0,
     day: 1,
     speed: 'normal',
   },
 
   advanceClock: () =>
     set((state) => {
-      let { hour, minute, day, tickCount } = state.clock;
+      let { hour, minute, second, day, tickCount } = state.clock;
       tickCount++;
-      minute++;
-      if (minute >= 60) {
-        minute = 0;
-        hour++;
-        if (hour >= 24) {
-          hour = 9; // new day starts at 9 AM
-          day++;
+      second++;
+      if (second >= 60) {
+        second = 0;
+        minute++;
+        if (minute >= 60) {
+          minute = 0;
+          hour++;
+          if (hour >= 24) {
+            hour = 9; // new day starts at 9 AM
+            day++;
+          }
         }
       }
-      return { clock: { ...state.clock, tickCount, hour, minute, day } };
+      return { clock: { ...state.clock, tickCount, hour, minute, second, day } };
     }),
 
   setSpeed: (speed) =>
@@ -38,6 +43,6 @@ export const createClockSlice: StateCreator<ClockSlice> = (set) => ({
 
   resetClock: () =>
     set({
-      clock: { tickCount: 0, hour: 9, minute: 0, day: 1, speed: 'normal' },
+      clock: { tickCount: 0, hour: 9, minute: 0, second: 0, day: 1, speed: 'normal' },
     }),
 });

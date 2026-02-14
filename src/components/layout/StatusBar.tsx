@@ -114,7 +114,7 @@ export function StatusBar() {
       <div className="flex items-center gap-1 text-claw-text">
         <Clock size={11} />
         <span>{formatDay(clock.day)}</span>
-        <span>{formatTime(clock.hour, clock.minute)}</span>
+        <span>{formatTime(clock.hour, clock.minute, clock.second)}</span>
       </div>
     </div>
   );

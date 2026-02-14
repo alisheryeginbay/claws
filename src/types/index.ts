@@ -13,6 +13,7 @@ export interface ClockState {
   tickCount: number;
   hour: number;       // 0-23
   minute: number;     // 0-59
+  second: number;     // 0-59
   day: number;        // day counter starting at 1
   speed: GameSpeed;
 }
