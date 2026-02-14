@@ -33,8 +33,8 @@ export class Scheduler {
       (r) => r.status === 'active' || r.status === 'in_progress' || r.status === 'incoming'
     );
 
-    // Don't overwhelm the player
-    if (activeRequests.length >= 2) return;
+    // One request at a time — NPC focuses on a single topic
+    if (activeRequests.length >= 1) return;
 
     // Check if it's time for a new request
     if (this.ticksSinceLastRequest < randomBetween(15, 30)) return;

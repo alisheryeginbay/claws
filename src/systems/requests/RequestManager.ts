@@ -1,7 +1,6 @@
 import { useGameStore } from '@/store/gameStore';
 import { checkObjective } from './validators';
 import { EventBus } from '@/engine/EventBus';
-import { generateNpcMessage } from '@/services/ai';
 import type { GameRequest } from '@/types';
 
 export class RequestManager {
@@ -11,25 +10,8 @@ export class RequestManager {
 
     state.addRequest(request);
 
-    // Send initial message from NPC (async AI generation)
-    const npcId = request.npcId;
-    const tick = state.clock.tickCount;
-    state.setNpcTyping(npcId, true);
-
-    const aiPromise = generateNpcMessage({
-      npcId,
-      messageType: 'initial',
-      request,
-    });
-    const typingDelay = new Promise<void>((resolve) =>
-      setTimeout(resolve, 800 + Math.random() * 600)
-    );
-
-    Promise.all([aiPromise, typingDelay]).then(([dialogue]) => {
-      const s = useGameStore.getState();
-      s.setNpcTyping(npcId, false);
-      s.addMessage(npcId, dialogue, false, tick);
-    });
+    // No NPC chat message — the turn-based check-in system will
+    // introduce the request naturally. This prevents message flooding.
 
     // Set NPC to waiting
     state.setNpcMood(request.npcId, 'waiting');
@@ -112,27 +94,8 @@ export class RequestManager {
     // NPC happiness
     state.setNpcMood(request.npcId, 'happy');
 
-    // Completion message (async AI generation)
-    {
-      const npcId = request.npcId;
-      const tick = state.clock.tickCount;
-      state.setNpcTyping(npcId, true);
-
-      const aiPromise = generateNpcMessage({
-        npcId,
-        messageType: 'completion',
-        request,
-      });
-      const typingDelay = new Promise<void>((resolve) =>
-        setTimeout(resolve, 800 + Math.random() * 600)
-      );
-
-      Promise.all([aiPromise, typingDelay]).then(([dialogue]) => {
-        const s = useGameStore.getState();
-        s.setNpcTyping(npcId, false);
-        s.addMessage(npcId, dialogue, false, tick);
-      });
-    }
+    // System message in chat — no async NPC message generation
+    state.addMessage(request.npcId, `Task completed: ${request.title}`, false, state.clock.tickCount, true);
 
     // Notification
     state.addNotification({
@@ -160,27 +123,8 @@ export class RequestManager {
     // NPC gets angry
     state.setNpcMood(request.npcId, 'angry');
 
-    // Failure message (async AI generation)
-    {
-      const npcId = request.npcId;
-      const tick = state.clock.tickCount;
-      state.setNpcTyping(npcId, true);
-
-      const aiPromise = generateNpcMessage({
-        npcId,
-        messageType: 'failure',
-        request,
-      });
-      const typingDelay = new Promise<void>((resolve) =>
-        setTimeout(resolve, 800 + Math.random() * 600)
-      );
-
-      Promise.all([aiPromise, typingDelay]).then(([dialogue]) => {
-        const s = useGameStore.getState();
-        s.setNpcTyping(npcId, false);
-        s.addMessage(npcId, dialogue, false, tick);
-      });
-    }
+    // System message in chat — no async NPC message generation
+    state.addMessage(request.npcId, `Deadline missed: ${request.title}`, false, state.clock.tickCount, true);
 
     state.addNotification({
       type: 'warning',
